@@ -1,0 +1,20 @@
+{
+  "name": "svg-builder",
+  "version": "0.0.1",
+  "main": "index.js",
+  "private": true,
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha --reporter spec"
+  },
+  "repository": {
+    "type": "git",
+    "url": "github:JoeChapman/svg-builder"
+  },
+  "author": "Joseph Chapman",
+  "license": "MIT",
+  "readmeFilename": "README.md",
+  "devDependencies": {
+    "mocha": "~1.17.0",
+    "chai": "~1.8.1"
+  }
+}
