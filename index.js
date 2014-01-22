@@ -47,32 +47,28 @@ function SvgBuilder() {
 
 };
 
-SvgBuilder.prototype = {
+SvgBuilder.prototype.render = function render() {
+    return this.root + this.elements.join('') + this.closeTag('svg');
+};
 
-    render: function render() {
-        return this.root + this.elements.join('') + this.closeTag('svg');
-    },
+SvgBuilder.prototype.a = function anchor(attrs, content) {
+    this.addElement(new A(attrs, content));
+    return this;
+};
 
-    a: function anchor(attrs, content) {
-        this.addElement(new A(attrs, content));
-        return this;
-    },
+SvgBuilder.prototype.circle = function circle(attrs, content) {
+    this.addElement(new Circle(attrs, content));
+    return this;
+};
 
-    circle: function circle(attrs, content) {
-        this.addElement(new Circle(attrs, content));
-        return this;
-    },
+SvgBuilder.prototype.text = function link(attrs, content) {
+    this.addElement(new Text(attrs, content));
+    return this;
+};
 
-    text: function link(attrs, content) {
-        this.addElement(new Text(attrs, content));
-        return this;
-    },
-
-    foreignObject: function (attrs, content) {
-        this.addElement(new ForeignObject(attrs, content));
-        return this;
-    }
-
+SvgBuilder.prototype.foreignObject = function foreignObject(attrs, content) {
+    this.addElement(new ForeignObject(attrs, content));
+    return this;
 };
 
 module.exports = new SvgBuilder();

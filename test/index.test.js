@@ -84,6 +84,63 @@ describe('svg-builder', function () {
 
     });
 
+    describe('.a()', function () {
+
+        it('throws an error if no attributes', function () {
+            (function () {
+                svg.a();
+            }).should.throw('An element must have attributes');
+        });
+
+        describe('chaining', function () {
+
+            it('returns the svg object', function () {
+                svg.a({'xlink:href': '/'}).a({'xlink:href': '/'}).a({'xlink:href': '/'}).a({'xlink:href': '/'}).should.equal(svg);
+            });
+
+            describe('.render()', function () {
+
+                it('returns the svg string with chained elements', function () {
+                    svg.a({
+                        'xlink:href': '/'
+                    }).a({
+                        'xlink:href': '/about'
+                    }).render().should.equal(svg.root + '<a xlink:href=\"/\"></a><a xlink:href=\"/about\"></a>' + svg.closeTag('svg'));
+                });
+
+            });
+        })
+
+        describe('content', function () {
+
+            it('can contain other a elements', function () {
+
+                (function () {
+                    svg.a({
+                        'xlink:href': '/'
+                    }, svg.a({
+                        'xlink:href': '/about'
+                    })).render()
+                }).should.not.throw('a cannot contain a elements.')
+
+            });
+
+            describe('.render()', function () {
+
+                it('returns the complete svg string with a elements and content', function () {
+                    svg.a({
+                        'xlink:href': '/'
+                    }, svg.a({
+                        'xlink:href': '/about'
+                    })).render().should.equal(svg.root + '<a xlink:href=\"/\"><a xlink:href=\"/about\"></a></a>' + svg.closeTag('svg'));
+                });
+
+            });
+
+        });
+
+    });
+
     describe('.circle()', function () {
 
         it('throws an error if no attributes', function () {
@@ -92,35 +149,20 @@ describe('svg-builder', function () {
             }).should.Throw('An element must have attributes');
         });
 
-        it('can be chained', function () {
-            svg.circle({r: 40}).circle({r: 40}).circle({r: 40}).circle({r: 40}).should.equal(svg);
+        describe('chaining', function () {
+
+            it('returns the svg object', function () {
+                svg.circle({r: 40}).circle({r: 40}).circle({r: 40}).circle({r: 40}).should.equal(svg);
+            });
+
+            describe('.render()', function () {
+
+            });
+
         });
 
-        it('adds a circle element with attributes to the elements list', function () {
 
-            svg.circle({
-                r: 40,
-                fill: 'none',
-                'stroke-width': 1,
-                stroke: '#CB3728',
-                cx: 42,
-                cy: 82,
-            }).elements.should.include('<circle r="40" fill="none" stroke-width="1" stroke="#CB3728" cx="42" cy="82"></circle>');
-        });
-
-        it('adds a circle element with attributes to the elements list', function () {
-
-            svg.circle({
-                r: 40,
-                fill: 'none',
-                'stroke-width': 1,
-                stroke: '#CB3728',
-                cx: 42,
-                cy: 82,
-            }).elements.should.include('<circle r="40" fill="none" stroke-width="1" stroke="#CB3728" cx="42" cy="82"></circle>');
-        });
-
-        it('cannot have content', function () {
+        it('cannot contain other circle elements', function () {
 
             (function () {
                 svg.circle({
@@ -142,9 +184,9 @@ describe('svg-builder', function () {
 
         });
 
-        describe('.render() after .circle()', function () {
+        describe('.render()', function () {
 
-            it('returns the complete svg with circle element and attributes', function () {
+            it('returns the svg string with circle element and attributes', function () {
                 svg.circle({
                     r: 40,
                     fill: 'none',
