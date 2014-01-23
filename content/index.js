@@ -17,6 +17,19 @@ module.exports = {
         'polyline',
         'rect'
     ],
+    container: [
+        'a',
+        'defs',
+        'glyph',
+        'g',
+        'marker',
+        'mask',
+        'missing-glyph',
+        'pattern',
+        'svg',
+        'switch',
+        'symbol'
+    ],
     descriptive: [
         'desc',
         'metadata',

@@ -2,8 +2,8 @@
 
 var prop = Object.defineProperty,
     getPropDesc = Object.getOwnPropertyDescriptor,
-    permittedContent = require('./content'),
-    permittedAttributes = require('./attributes'),
+    permittedContent = require('../content'),
+    permittedAttributes = require('../attributes'),
     Element = {
 
         globalAttributes: [

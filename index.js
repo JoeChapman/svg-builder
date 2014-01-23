@@ -1,9 +1,6 @@
 'use strict';
 
-var Circle = require('./circle'),
-    A = require('./a'),
-    Text = require('./text'),
-    ForeignObject = require('./foreignobject');
+var elements = require('./elements/');
 
 function SvgBuilder() {
 
@@ -52,22 +49,22 @@ SvgBuilder.prototype.render = function render() {
 };
 
 SvgBuilder.prototype.a = function anchor(attrs, content) {
-    this.addElement(new A(attrs, content));
+    this.addElement(new elements.A(attrs, content));
     return this;
 };
 
 SvgBuilder.prototype.circle = function circle(attrs, content) {
-    this.addElement(new Circle(attrs, content));
+    this.addElement(new elements.Circle(attrs, content));
     return this;
 };
 
 SvgBuilder.prototype.text = function link(attrs, content) {
-    this.addElement(new Text(attrs, content));
+    this.addElement(new elements.Text(attrs, content));
     return this;
 };
 
 SvgBuilder.prototype.foreignObject = function foreignObject(attrs, content) {
-    this.addElement(new ForeignObject(attrs, content));
+    this.addElement(new elements.ForeignObject(attrs, content));
     return this;
 };
 

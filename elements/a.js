@@ -12,7 +12,15 @@ module.exports = Element.extend({
 
         this.permittedAttributes = [
             'graphicalevent',
-            'presentation'
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
         ];
 
         Element.constructor.apply(this, arguments);

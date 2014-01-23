@@ -157,10 +157,17 @@ describe('svg-builder', function () {
 
             describe('.render()', function () {
 
+                it('returns the svg string with chained elements', function () {
+                    svg.circle({
+                        r: 40
+                    }).circle({
+                        r: 20
+                    }).render().should.equal(svg.root + '<circle r="40"></circle><circle r="20"></circle>' + svg.closeTag('svg'));
+                });
+
             });
 
         });
-
 
         it('cannot contain other circle elements', function () {
 
@@ -196,6 +203,64 @@ describe('svg-builder', function () {
                     cy: 82,
                 }).render().should.equal(svg.root + '<circle r="40" fill="none" stroke-width="1" stroke="#CB3728" cx="42" cy="82"></circle>' + svg.closeTag('svg'));
             });
+
+        });
+
+    });
+
+    describe('.text()', function () {
+
+        it('throws an error if no attributes', function () {
+            (function () {
+                svg.text();
+            }).should.Throw('An element must have attributes');
+        });
+
+        describe('chaining', function () {
+
+            it('returns the svg object', function () {
+                svg.text({r: 40}).text({r: 40}).text({r: 40}).text({r: 40}).should.equal(svg);
+            });
+
+            describe('.render()', function () {
+
+            });
+
+        });
+
+        it('cannot contain other text elements', function () {
+
+            (function () {
+                svg.text({
+                    r: 40,
+                    fill: 'none',
+                    'stroke-width': 1,
+                    stroke: '#CB3728',
+                    cx: 42,
+                    cy: 82,
+                }, svg.text({
+                    r: 40,
+                    fill: 'none',
+                    'stroke-width': 1,
+                    stroke: '#CB3728',
+                    cx: 42,
+                    cy: 82,
+                }))
+            }).should.throw('text cannot contain text elements.');
+
+        });
+
+        it('can contain a string', function () {
+
+            svg.text({
+                r: 40,
+                fill: 'none',
+                'stroke-width': 1,
+                stroke: '#CB3728',
+                cx: 42,
+                cy: 82,
+            }, 'Hello world')
+            .render().should.equal(svg.root + '<text r="40" fill="none" stroke-width="1" stroke="#CB3728" cx="42" cy="82">Hello world</text>' + svg.closeTag('svg'));
 
         });
 

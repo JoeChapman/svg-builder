@@ -6,20 +6,28 @@ module.exports = Element.extend({
 
     constructor: function () {
 
-        this.name = 'text';
+        this.name = 'circle';
 
         this.permittedContent = [
             'animation',
-            'descriptive',
-            'textcontentchild'
+            'descriptive'
         ];
 
         this.permittedAttributes = [
             'graphicalevent',
-            'presentation'
+            'presentation',
+            'core',
+            'conditionalprocessing',
+            [
+                'style',
+                'class',
+                'externalResourcesRequired',
+                'transform'
+            ]
         ];
 
         Element.constructor.apply(this, arguments);
+
     }
 
 });
