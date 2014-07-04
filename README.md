@@ -1,17 +1,17 @@
 svg-builder
 ===========
 
-Create your SVG elements in NodeJS
+Create SVG elements in NodeJS
 
-## Installation
+### Install
 
 ```
 npm install svg-builder
 ```
 
-## Usage
+### Use
 
-```javascript
+```js
     var svg = require('svg-builder')
         .width(125)
         .height(125);
@@ -41,3 +41,10 @@ npm install svg-builder
         }, 'My logo')
     ).render();
 ```
+
+### Test
+
+```
+$ npm test
+```
+
