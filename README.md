@@ -1,7 +1,10 @@
 svg-builder
 ===========
 
-Create SVG elements in NodeJS
+Simple, chainable SVG-building tool for [NodeJS](http://nodejs.org/) and the browser (with [Browserify](http://browserify.org/))
+
+[![Build Status](https://travis-ci.org/JoeChapman/svg-builder.svg?branch=master)](https://travis-ci.org/JoeChapman/svg-builder)
+[![NPM version](https://badge.fury.io/js/svg-builder.svg)](http://badge.fury.io/js/svg-builder)
 
 ### Install
 
