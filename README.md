@@ -43,7 +43,49 @@ npm install svg-builder
             fill: '#fff'
         }, 'My logo')
     ).render();
+    
+    svg.reset(); //removes all elements from the internal DOM.
+    
+    svg.line({
+        x1:0,
+        y1:0,
+        x2:125,
+        y2:125,
+        stroke:'#FF0000',
+        'stroke-width': 10
+    }).line({
+        x1:0,
+        y1:125,
+        x2:125,
+        y2:0,
+        stroke:'#FF0000',
+        'stroke-width': 10
+    }).render();
+    
 ```
+
+or
+```js 
+    
+    var otherBuilder = svg.newInstance(); // returns a new builder instance
+    otherBuilder.width(640).height(480);
+    otherBuilder.line({
+        x1:0,
+        y1:0,
+        x2:640,
+        y2:480,
+        stroke:'#FF0000',
+        'stroke-width': 40
+    }).line({
+        x1:0,
+        y1:480,
+        x2:640,
+        y2:0,
+        stroke:'#FF0000',
+        'stroke-width': 40
+    }).render();
+
+
 
 ### Test
 
