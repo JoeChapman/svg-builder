@@ -13,7 +13,7 @@ describe('svg-builder', function () {
 
     afterEach(function () {
         svg.elements = [];
-    })
+    });
 
     describe('require("svg-builder")', function () {
 
@@ -42,6 +42,18 @@ describe('svg-builder', function () {
             svg.text.should.be.a('function');
         });
 
+        it('returns object with prototypal line method', function () {
+            svg.should.have.property('line');
+            svg.text.should.be.a('function');
+        });
+
+        it('returns always the same object', function () {
+          svg.circle({r:40}).circle({r: 50});
+          var secondBuilder = require('../index');
+          secondBuilder.should.equal(svg);
+          secondBuilder.elements.should.equal(svg.elements);
+        });
+
     });
 
     describe('.width(200)', function () {
@@ -51,7 +63,7 @@ describe('svg-builder', function () {
         });
 
         it('sets the root element width to 200', function () {
-            svg.root.should.include('width="200"')
+            svg.root.should.include('width="200"');
         });
 
         it('does not set the root element with to 100', function () {
@@ -67,7 +79,7 @@ describe('svg-builder', function () {
         });
 
         it('sets the root element height to 200', function () {
-            svg.root.should.include('height="200"')
+            svg.root.should.include('height="200"');
         });
 
         it('does not set the root element with to 100', function () {
@@ -109,7 +121,7 @@ describe('svg-builder', function () {
                 });
 
             });
-        })
+        });
 
         describe('content', function () {
 
@@ -120,8 +132,8 @@ describe('svg-builder', function () {
                         'xlink:href': '/'
                     }, svg.a({
                         'xlink:href': '/about'
-                    })).render()
-                }).should.not.throw('a cannot contain a elements.')
+                    })).render();
+                }).should.not.throw('a cannot contain a elements.');
 
             });
 
@@ -186,7 +198,7 @@ describe('svg-builder', function () {
                     stroke: '#CB3728',
                     cx: 42,
                     cy: 82,
-                }))
+                }));
             }).should.throw('circle cannot contain circle elements.');
 
         });
@@ -245,7 +257,7 @@ describe('svg-builder', function () {
                     stroke: '#CB3728',
                     cx: 42,
                     cy: 82,
-                }))
+                }));
             }).should.throw('text cannot contain text elements.');
 
         });
@@ -265,7 +277,80 @@ describe('svg-builder', function () {
         });
 
     });
+    describe('.line()', function () {
 
+        it('throws an error if no attributes', function () {
+            (function () {
+                svg.line();
+            }).should.Throw('An element must have attributes');
+        });
+
+        describe('chaining', function () {
+
+            it('returns the svg object', function () {
+                svg.line({r: 40}).line({r: 40}).circle({r: 40}).circle({r: 40}).should.equal(svg);
+            });
+
+            describe('.render()', function () {
+
+                it('returns the svg string with chained elements', function () {
+                    svg.line({
+                        r: 40
+                    }).line({
+                        r: 20
+                    }).render().should.equal(svg.root + '<line r="40"></line><line r="20"></line>' + svg.closeTag('svg'));
+                });
+
+            });
+
+        });
+
+        it('cannot contain other line elements', function () {
+
+            (function () {
+                svg.line({
+                    r: 40,
+                    fill: 'none',
+                    'stroke-width': 1,
+                    stroke: '#CB3728',
+                    cx: 42,
+                    cy: 82,
+                }, svg.line({
+                    r: 40,
+                    fill: 'none',
+                    'stroke-width': 1,
+                    stroke: '#CB3728',
+                    cx: 42,
+                    cy: 82,
+                }));
+            }).should.throw('line cannot contain line elements.');
+
+        });
+    });
+    describe('.reset()', function () {
+        it('empties the elements array', function () {
+            svg.circle({r: 4}).circle({r:5});
+        svg.elements.length.should.equal(2);
+        svg.reset();
+        svg.elements.length.should.equal(0);
+    });
+        it('should render only the root', function () {
+            svg.circle({r:5});
+            svg.reset();
+            svg.render().should.equal(svg.root + svg.closeTag('svg'));
+        });
+    });
+
+});
+
+describe('new_Instance', function () {
+    var svg = require('../index');
+    it('returns always a new builder', function() {
+        var newBuilder = svg.newInstance();
+        newBuilder.should.not.equal(svg);
+        newBuilder.circle({r:5}).circle({r:4});
+        newBuilder.elements.should.not.equal(svg.elements);
+    });
 });
 
 
