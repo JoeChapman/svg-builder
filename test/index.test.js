@@ -288,17 +288,18 @@ describe('svg-builder', function () {
         describe('chaining', function () {
 
             it('returns the svg object', function () {
-                svg.line({r: 40}).line({r: 40}).circle({r: 40}).circle({r: 40}).should.equal(svg);
+                svg.line({x1: 0, y1:0, x2: 40, y2:40}).should.equal(svg);
             });
 
             describe('.render()', function () {
 
                 it('returns the svg string with chained elements', function () {
                     svg.line({
-                        r: 40
-                    }).line({
-                        r: 20
-                    }).render().should.equal(svg.root + '<line r="40"></line><line r="20"></line>' + svg.closeTag('svg'));
+                        x1: 0,
+                        y1:0,
+                        x2: 40,
+                        y2:40})
+                    .render().should.equal(svg.root + '<line x1="0" y1="0" x2="40" y2="40"></line>' + svg.closeTag('svg'));
                 });
 
             });
@@ -306,30 +307,17 @@ describe('svg-builder', function () {
         });
 
         it('cannot contain other line elements', function () {
-
-            (function () {
-                svg.line({
-                    r: 40,
-                    fill: 'none',
-                    'stroke-width': 1,
-                    stroke: '#CB3728',
-                    cx: 42,
-                    cy: 82,
-                }, svg.line({
-                    r: 40,
-                    fill: 'none',
-                    'stroke-width': 1,
-                    stroke: '#CB3728',
-                    cx: 42,
-                    cy: 82,
-                }));
+            (function() {
+                svg.line({x1: 0,y1:0,x2: 40,y2:40},
+                         svg.line({x1: 0,y1:0,x2: 40,y2:40}));
             }).should.throw('line cannot contain line elements.');
 
         });
     });
+
     describe('.reset()', function () {
         it('empties the elements array', function () {
-            svg.circle({r: 4}).circle({r:5});
+            svg.line({x1: 0, y1:0, x2: 40, y2:40}).circle({r:5});
         svg.elements.length.should.equal(2);
         svg.reset();
         svg.elements.length.should.equal(0);
@@ -341,19 +329,16 @@ describe('svg-builder', function () {
         });
     });
 
-});
-
-describe('new_Instance', function () {
-    var svg = require('../index');
-    it('returns always a new builder', function() {
-        var newBuilder = svg.newInstance();
-        newBuilder.should.not.equal(svg);
-        newBuilder.circle({r:5}).circle({r:4});
-        newBuilder.elements.should.not.equal(svg.elements);
+    describe('new_Instance', function () {
+        it('returns always a new builder', function() {
+            svg.circle({r:5}).circle({r:4});
+            var newBuilder = svg.newInstance();
+            newBuilder.should.not.equal(svg);
+            newBuilder.circle({r:5}).circle({r:4});
+            newBuilder.elements.should.not.equal(svg.elements);
+        });
     });
+
 });
-
-
-
 
 
