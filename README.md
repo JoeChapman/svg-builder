@@ -12,7 +12,7 @@ Simple, chainable SVG-building tool for [NodeJS](http://nodejs.org/) and the bro
 npm install svg-builder
 ```
 
-### Use
+### Usage
 
 ```js
     var svg = require('svg-builder')
