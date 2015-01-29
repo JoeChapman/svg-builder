@@ -45,6 +45,14 @@ function SvgBuilder() {
     };
 
 }
+SvgBuilder.prototype.newInstance = function() {
+  return new SvgBuilder();
+};
+
+SvgBuilder.prototype.reset = function() {
+  this.elements = [];
+  return this;
+};
 
 SvgBuilder.prototype.render = function render() {
     return this.root + this.elements.join('') + this.closeTag('svg');
