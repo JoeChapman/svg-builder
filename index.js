@@ -8,23 +8,25 @@ function SvgBuilder() {
     this.elements = [];
 
     function formatRoot(name, value) {
+      /* jshint -W040 */
         var formatted = this.root,
             regexp = new RegExp(name + '([^=,]*)=("[^"]*"|[^,"]*)');
         return formatted.replace(regexp, name + '="' + value + '"');
-    };
+      /* jshint +W040 */
+    }
 
     this.closeTag = function closeTag(name) {
-        return '</' + name + '>'
+        return '</' + name + '>';
     };
 
     this.width = function width(value) {
         this.root = formatRoot.call(this, 'width', value);
-        return this
+        return this;
     };
 
     this.height = function height(value) {
         this.root = formatRoot.call(this, 'height', value);
-        return this
+        return this;
     };
 
     this.addElement = function addElement(element) {
@@ -38,10 +40,18 @@ function SvgBuilder() {
             var elements = this.elements.join('');
             this.elements = [];
             this.elements.unshift(element.node, elements);
-            this.elements.push(this.closeTag(element.name))
+            this.elements.push(this.closeTag(element.name));
         }
     };
 
+}
+SvgBuilder.prototype.newInstance = function() {
+  return new SvgBuilder();
+};
+
+SvgBuilder.prototype.reset = function() {
+  this.elements = [];
+  return this;
 };
 
 SvgBuilder.prototype.render = function render() {
@@ -65,6 +75,11 @@ SvgBuilder.prototype.text = function link(attrs, content) {
 
 SvgBuilder.prototype.foreignObject = function foreignObject(attrs, content) {
     this.addElement(new elements.ForeignObject(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.line = function line(attrs, content) {
+    this.addElement(new elements.Line(attrs, content));
     return this;
 };
 
