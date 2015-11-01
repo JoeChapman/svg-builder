@@ -6,3 +6,4 @@ module.exports.Text = require('./text');
 module.exports.ForeignObject = require('./foreignobject');
 module.exports.Line = require('./line');
 module.exports.Rect = require('./rect');
+module.exports.Path = require('./path');

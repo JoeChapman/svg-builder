@@ -359,6 +359,41 @@ describe('svg-builder', function () {
         });
     });
 
+
+    describe('.path()', function () {
+
+        it('throws an error if no attributes', function () {
+            (function () {
+                svg.path();
+            }).should.Throw('An element must have attributes');
+        });
+
+        describe('chaining', function () {
+
+            it('returns the svg object', function () {
+                svg.path({d:'M 100 100 L 300 100 L 200 300 z'}).should.equal(svg);
+            });
+
+            describe('.render()', function () {
+
+                it('returns the svg string with chained elements', function () {
+                    svg.path({d:'M 100 100 L 300 100 L 200 300 z'})
+                    .render().should.equal(svg.root + '<path d="M 100 100 L 300 100 L 200 300 z"></path>' + svg.closeTag('svg'));
+                });
+
+            });
+
+        });
+
+        it('cannot contain other path elements', function () {
+            (function() {
+                svg.path({d:'M 100 100 L 300 100 L 200 300 z'},
+                         svg.path({d:'M 100 100 L 300 100 L 200 300 z'}));
+            }).should.throw('path cannot contain path elements.');
+
+        });
+    });
+
     describe('.reset()', function () {
         it('empties the elements array', function () {
             svg.line({x1: 0, y1:0, x2: 40, y2:40}).circle({r:5});
