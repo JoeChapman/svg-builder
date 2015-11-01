@@ -47,6 +47,11 @@ describe('svg-builder', function () {
             svg.text.should.be.a('function');
         });
 
+        it('returns object with prototypal rect method', function () {
+            svg.should.have.property('rect');
+            svg.text.should.be.a('function');
+        });
+
         it('returns always the same object', function () {
           svg.circle({r:40}).circle({r: 50});
           var secondBuilder = require('../index');
@@ -311,6 +316,45 @@ describe('svg-builder', function () {
                 svg.line({x1: 0,y1:0,x2: 40,y2:40},
                          svg.line({x1: 0,y1:0,x2: 40,y2:40}));
             }).should.throw('line cannot contain line elements.');
+
+        });
+    });
+
+
+    describe('.rect()', function () {
+
+        it('throws an error if no attributes', function () {
+            (function () {
+                svg.rect();
+            }).should.Throw('An element must have attributes');
+        });
+
+        describe('chaining', function () {
+
+            it('returns the svg object', function () {
+                svg.rect({x: 0, y: 0, width: 40, height:40}).should.equal(svg);
+            });
+
+            describe('.render()', function () {
+
+                it('returns the svg string with chained elements', function () {
+                    svg.rect({
+                        x: 0,
+                        y:0,
+                        width: 40,
+                        height:40})
+                    .render().should.equal(svg.root + '<rect x="0" y="0" width="40" height="40"></rect>' + svg.closeTag('svg'));
+                });
+
+            });
+
+        });
+
+        it('cannot contain other rect elements', function () {
+            (function() {
+                svg.rect({x: 0, y: 0, width: 40, height:40},
+                         svg.rect({x: 0, y: 0, width: 40, height:40}));
+            }).should.throw('rect cannot contain rect elements.');
 
         });
     });
