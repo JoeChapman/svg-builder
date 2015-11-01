@@ -44,12 +44,17 @@ describe('svg-builder', function () {
 
         it('returns object with prototypal line method', function () {
             svg.should.have.property('line');
-            svg.text.should.be.a('function');
+            svg.line.should.be.a('function');
         });
 
         it('returns object with prototypal rect method', function () {
             svg.should.have.property('rect');
-            svg.text.should.be.a('function');
+            svg.rect.should.be.a('function');
+        });
+
+        it('returns object with prototypal path method', function () {
+            svg.should.have.property('path');
+            svg.path.should.be.a('function');
         });
 
         it('returns always the same object', function () {
