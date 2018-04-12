@@ -41,8 +41,7 @@ npm install svg-builder
             'font-size': 15,
             stroke : '#fff',
             fill: '#fff'
-        }, 'My logo')
-    ).render();
+        }, 'My logo').render();
     
     svg.reset(); //removes all elements from the internal DOM.
     
