@@ -44,7 +44,17 @@ describe('svg-builder', function () {
 
         it('returns object with prototypal line method', function () {
             svg.should.have.property('line');
-            svg.text.should.be.a('function');
+            svg.line.should.be.a('function');
+        });
+
+        it('returns object with prototypal rect method', function () {
+            svg.should.have.property('rect');
+            svg.rect.should.be.a('function');
+        });
+
+        it('returns object with prototypal path method', function () {
+            svg.should.have.property('path');
+            svg.path.should.be.a('function');
         });
 
         it('returns always the same object', function () {
@@ -311,6 +321,80 @@ describe('svg-builder', function () {
                 svg.line({x1: 0,y1:0,x2: 40,y2:40},
                          svg.line({x1: 0,y1:0,x2: 40,y2:40}));
             }).should.throw('line cannot contain line elements.');
+
+        });
+    });
+
+
+    describe('.rect()', function () {
+
+        it('throws an error if no attributes', function () {
+            (function () {
+                svg.rect();
+            }).should.Throw('An element must have attributes');
+        });
+
+        describe('chaining', function () {
+
+            it('returns the svg object', function () {
+                svg.rect({x: 0, y: 0, width: 40, height:40}).should.equal(svg);
+            });
+
+            describe('.render()', function () {
+
+                it('returns the svg string with chained elements', function () {
+                    svg.rect({
+                        x: 0,
+                        y:0,
+                        width: 40,
+                        height:40})
+                    .render().should.equal(svg.root + '<rect x="0" y="0" width="40" height="40"></rect>' + svg.closeTag('svg'));
+                });
+
+            });
+
+        });
+
+        it('cannot contain other rect elements', function () {
+            (function() {
+                svg.rect({x: 0, y: 0, width: 40, height:40},
+                         svg.rect({x: 0, y: 0, width: 40, height:40}));
+            }).should.throw('rect cannot contain rect elements.');
+
+        });
+    });
+
+
+    describe('.path()', function () {
+
+        it('throws an error if no attributes', function () {
+            (function () {
+                svg.path();
+            }).should.Throw('An element must have attributes');
+        });
+
+        describe('chaining', function () {
+
+            it('returns the svg object', function () {
+                svg.path({d:'M 100 100 L 300 100 L 200 300 z'}).should.equal(svg);
+            });
+
+            describe('.render()', function () {
+
+                it('returns the svg string with chained elements', function () {
+                    svg.path({d:'M 100 100 L 300 100 L 200 300 z'})
+                    .render().should.equal(svg.root + '<path d="M 100 100 L 300 100 L 200 300 z"></path>' + svg.closeTag('svg'));
+                });
+
+            });
+
+        });
+
+        it('cannot contain other path elements', function () {
+            (function() {
+                svg.path({d:'M 100 100 L 300 100 L 200 300 z'},
+                         svg.path({d:'M 100 100 L 300 100 L 200 300 z'}));
+            }).should.throw('path cannot contain path elements.');
 
         });
     });

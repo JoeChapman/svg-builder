@@ -83,5 +83,15 @@ SvgBuilder.prototype.line = function line(attrs, content) {
     return this;
 };
 
+SvgBuilder.prototype.rect = function rect(attrs, content) {
+    this.addElement(new elements.Rect(attrs, content));
+    return this;
+};
+
+SvgBuilder.prototype.path = function line(attrs, content) {
+    this.addElement(new elements.Path(attrs, content));
+    return this;
+};
+
 module.exports = new SvgBuilder();
 
