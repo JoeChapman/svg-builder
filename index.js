@@ -29,6 +29,11 @@ function SvgBuilder() {
         return this;
     };
 
+    this.viewBox = function viewBox(value) {
+        this.root = this.root.replace("<svg ", `<svg viewBox="${value}" `);
+        return this;
+    }
+
     this.addElement = function addElement(element) {
         if (!element.content) {
             element.node += this.closeTag(element.name);
@@ -45,6 +50,7 @@ function SvgBuilder() {
     };
 
 }
+
 SvgBuilder.prototype.newInstance = function() {
   return new SvgBuilder();
 };
