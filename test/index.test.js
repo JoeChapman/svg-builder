@@ -27,6 +27,11 @@ describe('svg-builder', function () {
             svg.height.should.be.a('function');
         });
 
+        it('returns object with own viewBox function', function () {
+            svg.should.have.ownProperty('viewBox');
+            svg.viewBox.should.be.a('function');
+        });        
+
         it('returns object with prototypal render method', function () {
             svg.should.have.property('render');
             svg.render.should.be.a('function');
@@ -63,7 +68,6 @@ describe('svg-builder', function () {
           secondBuilder.should.equal(svg);
           secondBuilder.elements.should.equal(svg.elements);
         });
-
     });
 
     describe('.width(200)', function () {
@@ -97,6 +101,16 @@ describe('svg-builder', function () {
         });
 
     });
+
+    describe('.viewBox', function () {
+        it('should not have a viewBox propety by default', function () {
+            svg.root.should.not.include('viewBox=')
+        })
+
+        it('should set the viewBox property when called', function () {
+            svg.viewBox("0 0 100 100").render().should.include('viewBox="0 0 100 100"');
+        })
+    })
 
     describe('.render() before calling an element method', function () {
 
@@ -313,6 +327,30 @@ describe('svg-builder', function () {
                 });
 
             });
+
+            describe(".buffer()", function () {
+                let bufferSvg;
+
+                beforeEach(function () {
+                    bufferSvg = svg.line({
+                        x1: 0,
+                        y1:0,
+                        x2: 40,
+                        y2:40
+                    })
+                })
+
+                it('returns the svg as a buffer', function () {
+                    bufferSvg.buffer().should.be.instanceof(Buffer)
+                })
+
+                it('should be identical to the svg .render() buffer', function () {
+                    Buffer.compare(
+                        bufferSvg.buffer(),
+                        Buffer.from(bufferSvg.render())
+                    ).should.equal(0);
+                })
+            })
 
         });
 

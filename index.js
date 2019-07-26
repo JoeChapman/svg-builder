@@ -29,6 +29,11 @@ function SvgBuilder() {
         return this;
     };
 
+    this.viewBox = function viewBox(value) {
+        this.root = this.root.replace("<svg ", `<svg viewBox="${value}" `);
+        return this;
+    }
+
     this.addElement = function addElement(element) {
         if (!element.content) {
             element.node += this.closeTag(element.name);
@@ -45,6 +50,7 @@ function SvgBuilder() {
     };
 
 }
+
 SvgBuilder.prototype.newInstance = function() {
   return new SvgBuilder();
 };
@@ -57,6 +63,10 @@ SvgBuilder.prototype.reset = function() {
 SvgBuilder.prototype.render = function render() {
     return this.root + this.elements.join('') + this.closeTag('svg');
 };
+
+SvgBuilder.prototype.buffer = function toBuffer() {
+    return Buffer.from(this.render());
+}
 
 SvgBuilder.prototype.a = function anchor(attrs, content) {
     this.addElement(new elements.A(attrs, content));
