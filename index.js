@@ -58,6 +58,10 @@ SvgBuilder.prototype.render = function render() {
     return this.root + this.elements.join('') + this.closeTag('svg');
 };
 
+SvgBuilder.prototype.buffer = function toBuffer() {
+    return Buffer.from(this.render());
+}
+
 SvgBuilder.prototype.a = function anchor(attrs, content) {
     this.addElement(new elements.A(attrs, content));
     return this;

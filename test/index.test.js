@@ -314,6 +314,30 @@ describe('svg-builder', function () {
 
             });
 
+            describe(".buffer()", function () {
+                let bufferSvg;
+
+                beforeEach(function () {
+                    bufferSvg = svg.line({
+                        x1: 0,
+                        y1:0,
+                        x2: 40,
+                        y2:40
+                    })
+                })
+
+                it('returns the svg as a buffer', function () {
+                    bufferSvg.buffer().should.be.instanceof(Buffer)
+                })
+
+                it('should be identical to the svg .render() buffer', function () {
+                    Buffer.compare(
+                        bufferSvg.buffer(),
+                        Buffer.from(bufferSvg.render())
+                    ).should.equal(0);
+                })
+            })
+
         });
 
         it('cannot contain other line elements', function () {
