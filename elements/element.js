@@ -21,13 +21,13 @@ var prop = Object.defineProperty,
             this.make(attrs, content);
         },
 
-        checkAny: function concatenateList(list) {
+        checkAny: function checkAny(list) {
             return (list === 'any');
         },
 
         defineContent: function contentList() {
             if (this.checkAny(this.permittedContent)) return;
-            this.permittedContent.forEach(function (item, index) {
+            this.permittedContent.forEach(function (item) {
                 this.permittedContent = this.permittedContent.concat(permittedContent[item]);
             }, this);
         },
@@ -35,8 +35,8 @@ var prop = Object.defineProperty,
         defineAttributes: function attrsList() {
             if (this.checkAny(this.permittedAttributes)) return;
             var args = this.permittedAttributes.concat(this.globalAttributes);
-            args.forEach(function (item, index) {
-                this.permittedAttributes = args.concat(permittedContent[item]);
+            args.forEach(function (item) {
+                this.permittedAttributes = args.concat(permittedAttributes[item]);
             }, this);
         },
 

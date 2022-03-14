@@ -177,6 +177,81 @@ describe('svg-builder', function () {
 
     });
 
+    describe('.g()', function () {
+
+        it('throws an error if no attributes', function () {
+            (function () {
+                svg.g();
+            }).should.throw('An element must have attributes');
+        });
+
+        describe('chaining', function () {
+            it('returns the svg object', function () {
+                svg
+                .g({ fill: 'white' })
+                .g({ fill: 'white' })
+                .g({ fill: 'white' })
+                .g({ fill: 'white' })
+                    .should.equal(svg);
+            });
+
+            describe('.render()', function () {
+                it('returns the svg string with chained elements', function () {
+                    svg
+                        .g({ fill: 'white' })
+                        .g({ fill: 'white' })
+                        .render()
+                        .should.equal(svg.root + '<g fill="white"></g><g fill="white"></g>' + svg.closeTag('svg'));
+                });
+            });
+        });
+
+        describe('content', function () {
+
+            it('can contain other g elements', function () {
+
+                (function () {
+                    svg.g({
+                        'stroke': 'red'
+                    }, svg.g({
+                        'stroke': 'blue'
+                    })).render();
+                }).should.not.throw('a cannot contain g elements.');
+
+            });
+
+            it('groups other elements', function () {
+                svg.g({
+                    'fill': 'white',
+                    'stroke': 'green',
+                    'r': '40'
+                }, svg
+                    .circle({cy: 40})
+                    .circle({cy: 60})
+                    .circle({cy: 10})
+                )   
+                .render()
+                .should
+                .equal(svg.root + '<g fill="white" stroke="green" r="40"><circle cy="40"></circle><circle cy="60"></circle><circle cy="10"></circle></g>' + svg.closeTag('svg'));
+
+            });
+
+            describe('.render()', function () {
+
+                it('returns the complete svg string with g elements and content', function () {
+                    svg.g({
+                        'fill': 'white'
+                    }, svg.g({
+                        'fill': 'blue'
+                    })).render().should.equal(svg.root + '<g fill="white"><g fill="blue"></g></g>' + svg.closeTag('svg'));
+                });
+
+            });
+
+        });
+
+    });
+
     describe('.circle()', function () {
 
         it('throws an error if no attributes', function () {

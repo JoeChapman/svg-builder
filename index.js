@@ -73,6 +73,11 @@ SvgBuilder.prototype.a = function anchor(attrs, content) {
     return this;
 };
 
+SvgBuilder.prototype.g = function group(attrs, content) {
+    this.addElement(new elements.G(attrs, content));
+    return this;
+};
+
 SvgBuilder.prototype.circle = function circle(attrs, content) {
     this.addElement(new elements.Circle(attrs, content));
     return this;

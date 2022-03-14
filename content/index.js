@@ -6,6 +6,7 @@ module.exports = {
         'animatecolor',
         'animatemotion',
         'animatetransform',
+        'discard',
         'mapath',
         'set'
     ],
@@ -34,6 +35,18 @@ module.exports = {
         'desc',
         'metadata',
         'title'
+    ],
+    paint: [
+        'linearGradient', 
+        'radialGradient', 
+        'pattern'
+    ],
+    structural: [
+        'defs', 
+        'g', 
+        'svg', 
+        'symbol', 
+        'use'
     ],
     textcontent: [
         'altglyph',
