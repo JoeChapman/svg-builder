@@ -1,6 +1,6 @@
 {
   "name": "svg-builder",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "main": "index.js",
   "description": "Simple, chainable SVG-building tool for NodeJS and the browser (with Browserify)",
   "keywords": [
