@@ -108,5 +108,10 @@ SvgBuilder.prototype.path = function line(attrs, content) {
     return this;
 };
 
+SvgBuilder.prototype.style = function line(attrs, content) {
+    this.addElement(new elements.Style(attrs, content));
+    return this;
+};
+
 module.exports = new SvgBuilder();
 

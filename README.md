@@ -12,6 +12,19 @@ Simple, chainable SVG-building tool for [NodeJS](http://nodejs.org/) and the bro
 npm install svg-builder
 ```
 
+### SVG Elements
+
+- a
+- circle
+- foreignObject
+- g
+- line 
+- path
+- rect
+- style
+- text
+
+
 ### Usage
 
 ```js

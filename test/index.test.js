@@ -122,12 +122,6 @@ describe('svg-builder', function () {
 
     describe('.a()', function () {
 
-        it('throws an error if no attributes', function () {
-            (function () {
-                svg.a();
-            }).should.throw('An element must have attributes');
-        });
-
         describe('chaining', function () {
 
             it('returns the svg object', function () {
@@ -178,12 +172,6 @@ describe('svg-builder', function () {
     });
 
     describe('.g()', function () {
-
-        it('throws an error if no attributes', function () {
-            (function () {
-                svg.g();
-            }).should.throw('An element must have attributes');
-        });
 
         describe('chaining', function () {
             it('returns the svg object', function () {
@@ -254,12 +242,6 @@ describe('svg-builder', function () {
 
     describe('.circle()', function () {
 
-        it('throws an error if no attributes', function () {
-            (function () {
-                svg.circle();
-            }).should.Throw('An element must have attributes');
-        });
-
         describe('chaining', function () {
 
             it('returns the svg object', function () {
@@ -321,12 +303,6 @@ describe('svg-builder', function () {
 
     describe('.text()', function () {
 
-        it('throws an error if no attributes', function () {
-            (function () {
-                svg.text();
-            }).should.Throw('An element must have attributes');
-        });
-
         describe('chaining', function () {
 
             it('returns the svg object', function () {
@@ -377,12 +353,6 @@ describe('svg-builder', function () {
 
     });
     describe('.line()', function () {
-
-        it('throws an error if no attributes', function () {
-            (function () {
-                svg.line();
-            }).should.Throw('An element must have attributes');
-        });
 
         describe('chaining', function () {
 
@@ -441,12 +411,6 @@ describe('svg-builder', function () {
 
     describe('.rect()', function () {
 
-        it('throws an error if no attributes', function () {
-            (function () {
-                svg.rect();
-            }).should.Throw('An element must have attributes');
-        });
-
         describe('chaining', function () {
 
             it('returns the svg object', function () {
@@ -480,12 +444,6 @@ describe('svg-builder', function () {
 
     describe('.path()', function () {
 
-        it('throws an error if no attributes', function () {
-            (function () {
-                svg.path();
-            }).should.Throw('An element must have attributes');
-        });
-
         describe('chaining', function () {
 
             it('returns the svg object', function () {
@@ -512,13 +470,37 @@ describe('svg-builder', function () {
         });
     });
 
+    describe('.style()', function () {
+
+        describe('chaining', function () {
+
+            it('returns the svg object', function () {
+                svg.style({
+                    d:'M 100 100 L 300 100 L 200 300 z'
+                }).should.equal(svg);
+            });
+
+            describe('.render()', function () {
+
+                it('returns the svg string with chained elements', function () {
+                    svg.style({
+                        d: 'M 100 100 L 300 100 L 200 300 z'
+                    })
+                    .render()
+                    .should
+                    .equal(svg.root + '<style d="M 100 100 L 300 100 L 200 300 z"></style>' + svg.closeTag('svg'));
+                });
+            });
+        });
+    });
+
     describe('.reset()', function () {
         it('empties the elements array', function () {
             svg.line({x1: 0, y1:0, x2: 40, y2:40}).circle({r:5});
-        svg.elements.length.should.equal(2);
-        svg.reset();
-        svg.elements.length.should.equal(0);
-    });
+            svg.elements.length.should.equal(2);
+            svg.reset();
+            svg.elements.length.should.equal(0);
+        });
         it('should render only the root', function () {
             svg.circle({r:5});
             svg.reset();

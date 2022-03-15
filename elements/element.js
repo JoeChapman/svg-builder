@@ -69,13 +69,13 @@ var prop = Object.defineProperty,
         },
 
         make: function makeElement(attrs, content) {
-            if (!attrs || Object.keys(attrs).length === 0) {
-                throw new Error('An element must have attributes');
-            }
             var element = '<' + this.name,
                 prop;
-            for (prop in attrs) {
-                element += (' ' + prop + '="' + attrs[prop]) + '"';
+
+            if ( attrs) {
+               for (prop in attrs) {
+                    element += (' ' + prop + '="' + attrs[prop]) + '"';
+                }
             }
             element += '>';
             this.node = element;
