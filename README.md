@@ -3,7 +3,7 @@ svg-builder
 
 Simple, chainable SVG-building tool for [NodeJS](http://nodejs.org/) and the browser (with [Browserify](http://browserify.org/))
 
-[![Build Status](https://app.travis-ci.com/JoeChapman/svg-builder.svg?branch=master)](https://app.travis-ci.com/JoeChapman/svg-builder.svg?branch=master)
+[![Build Status](https://app.travis-ci.com/JoeChapman/svg-builder.svg?branch=main)](https://app.travis-ci.com/JoeChapman/svg-builder.svg?branch=main)
 [![NPM version](https://badge.fury.io/js/svg-builder.svg)](http://badge.fury.io/js/svg-builder) [![Greenkeeper badge](https://badges.greenkeeper.io/JoeChapman/svg-builder.svg)](https://greenkeeper.io/)
 
 ### Install
