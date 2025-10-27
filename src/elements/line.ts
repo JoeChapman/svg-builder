@@ -1,9 +1,11 @@
 'use strict';
 
-import Element from './element';
+import Element, {
+  ElementAttributes, ElementContent, 
+} from './element';
 
 class Line extends Element {
-  constructor (attrs: any, content: any) {
+  constructor (attrs: ElementAttributes | undefined, content?: ElementContent) {
     super(attrs, content);
     
     this.name = 'line';
@@ -23,6 +25,7 @@ class Line extends Element {
         'transform',
       ],
     ];
+    this.initializeNode();
   }
 }
 

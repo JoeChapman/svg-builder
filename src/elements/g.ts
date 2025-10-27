@@ -1,9 +1,11 @@
 'use strict';
 
-import Element from './element';
+import Element, {
+  ElementAttributes, ElementContent, 
+} from './element';
 
 class G extends Element {
-  constructor (attrs: any, content: any) {
+  constructor (attrs: ElementAttributes | undefined, content?: ElementContent) {
     super(attrs, content);
 
     this.name = 'g';
@@ -20,6 +22,7 @@ class G extends Element {
         'transform',
       ],
     ];
+    this.initializeNode();
   }
 }
 

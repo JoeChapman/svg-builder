@@ -1,7 +1,9 @@
-import Element from './element';
+import Element, {
+  ElementAttributes, ElementContent, 
+} from './element';
 
 class Path extends Element {
-  constructor (attrs: any, content: any) {
+  constructor (attrs: ElementAttributes | undefined, content?: ElementContent) {
     super(attrs, content);
     
     this.name = 'path';
@@ -21,6 +23,7 @@ class Path extends Element {
         'transform',
       ],
     ];
+    this.initializeNode();
   }
 }
 

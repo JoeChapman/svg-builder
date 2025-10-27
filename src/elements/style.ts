@@ -1,7 +1,9 @@
-import Element from './element';
+import Element, {
+  ElementAttributes, ElementContent, 
+} from './element';
 
 class Style extends Element {
-  constructor (attrs: any, content: any) {
+  constructor (attrs: ElementAttributes | undefined, content?: ElementContent) {
     super(attrs, content);
     
     this.name = 'style';
@@ -17,6 +19,7 @@ class Style extends Element {
         'transform',
       ],
     ];
+    this.initializeNode();
   }
 }
 

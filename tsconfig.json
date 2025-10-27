@@ -4,7 +4,11 @@
     "allowJs": true,
     "target": "es5",
     "module": "commonjs",
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "types": ["vitest/globals"]
   },
-  "include": ["./src/**/*"]
+  "include": [
+    "./src/**/*",
+    "./test/**/*"
+  ]
 }

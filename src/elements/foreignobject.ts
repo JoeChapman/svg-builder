@@ -1,9 +1,11 @@
 'use strict';
 
-import Element from './element';
+import Element, {
+  ElementAttributes, ElementContent, 
+} from './element';
 
 class ForeignObject extends Element {
-  constructor (attrs: object, content: any) {
+  constructor (attrs: ElementAttributes | undefined, content?: ElementContent) {
     super(attrs, content);
 
     this.name = 'foreignObject';
@@ -21,6 +23,7 @@ class ForeignObject extends Element {
         'transform',
       ],
     ];
+    this.initializeNode();
   }
 }
 

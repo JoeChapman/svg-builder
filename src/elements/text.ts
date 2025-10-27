@@ -1,7 +1,9 @@
-import Element from './element';
+import Element, {
+  ElementAttributes, ElementContent, 
+} from './element';
 
 class Text extends Element {
-  constructor (attrs: any, content: any) {
+  constructor (attrs: ElementAttributes | undefined, content?: ElementContent) {
     super(attrs, content);
     this.name = 'text';
     
@@ -24,6 +26,7 @@ class Text extends Element {
         'transform',
       ],
     ]; 
+    this.initializeNode();
   }
 }
 export default Text;

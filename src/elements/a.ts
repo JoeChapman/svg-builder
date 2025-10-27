@@ -1,14 +1,11 @@
 'use strict';
 
-import Element from './element';
+import Element, {
+  ElementAttributes, ElementContent, 
+} from './element';
 
 class A extends Element {
-
-  name: string;
-  permittedContent: string;
-  permittedAttributes: (string | string[])[];
-
-  constructor (attrs: object, content: any) {
+  constructor (attrs: ElementAttributes | undefined, content?: ElementContent) {
     super(attrs, content);
     this.name = 'a';
     this.permittedContent = 'any';
@@ -24,7 +21,8 @@ class A extends Element {
         'transform',
       ],
     ];
+    this.initializeNode();
   }
-};
+}
 
 export default A;
