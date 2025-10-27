@@ -24,6 +24,12 @@ npm install svg-builder
 - style
 - text
 
+import svg from 'svg-builder')
+
+svg
+  .build()
+  .width(125)
+  .height(125);
 
 ### Usage
 
