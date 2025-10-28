@@ -102,7 +102,28 @@ class Element extends SVGElementBase {
     if (!this.attrs) {
       return;
     }
-    // Legacy behaviour permits all attributes; validation intentionally skipped.
+    if (this.isAny(this.permittedAttributes)) {
+      return;
+    }
+    const permittedList = this.permittedAttributes as string[];
+
+    const allowed = new Set<string>();
+    // Global attributes are always available.
+    this.globalAttributes.forEach((token) => {
+      this.resolveTokens([token], attributeRegistry).forEach((attribute) => {
+        allowed.add(attribute);
+      });
+    });
+
+    this.resolveTokens(permittedList, attributeRegistry).forEach((attribute) => {
+      allowed.add(attribute);
+    });
+
+    Object.keys(this.attrs).forEach((attribute) => {
+      if (!allowed.has(attribute)) {
+        throw new Error(this.name + ' does not support ' + attribute + ' attribute.');
+      }
+    });
   }
   
   checkContent () {

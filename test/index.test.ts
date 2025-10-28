@@ -114,22 +114,38 @@ describe('Element base behaviour', () => {
     const element = new DemoElement({ id: 'demo' }, validContent);
     expect(Array.isArray(element.permittedContent)).toBe(true);
     expect(element.permittedContent).toContain('title');
-    const ariaLabelOccurrences = element.permittedAttributes.filter((attr) => attr === 'aria-label').length;
+    const ariaLabelOccurrences = (element.permittedAttributes as Array<string>).filter((attr: string) => attr === 'aria-label').length;
     expect(ariaLabelOccurrences).toBe(1);
     expect(element.node).toContain('id="demo"');
     expect(() => new DemoElement(undefined, { elements: ['<circle></circle>'] } as BuilderLike)).toThrow('demo-element cannot contain circle elements.');
   });
 
   it('omits undefined attributes when generating markup', () => {
-    const element = new DemoElement({ class: 'box',
-      hidden: undefined });
+    const element = new DemoElement({
+      class: 'box',
+      lang: undefined,
+    });
     expect(element.node).toContain('class="box"');
-    expect(element.node).not.toContain('hidden="undefined"');
+    expect(element.node).not.toContain('lang="undefined"');
   });
 
   it('parses tag names from raw markup', () => {
     const element = new DemoElement();
     expect(element.getElementName('<foreignObject></foreignObject>')).toBe('foreignObject');
+  });
+
+  it('permits attributes defined via tokens and global defaults', () => {
+    expect(() => new DemoElement({
+      class: 'token',
+      'aria-label': 'demo',
+      id: 'demo',
+    })).not.toThrow();
+  });
+
+  it('rejects attributes that are not permitted', () => {
+    expect(() => new DemoElement({
+      onclick: 'noop()',
+    })).toThrow('demo-element does not support onclick attribute.');
   });
 });
 

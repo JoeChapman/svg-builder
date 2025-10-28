@@ -6,6 +6,7 @@ import {
   ELEMENT_NAMES,
   ATTRIBUTE_NAMES,
   ELEMENT_ATTRIBUTE_INDICES,
+  GEOMETRY_ATTRIBUTE_INDICES,
   type ElementName,
 } from './definitions.js';
 
@@ -49,7 +50,15 @@ const createElementConstructor = (name: ElementName): ElementConstructor => {
       super(attrs, content);
       this.name = name;
       const attributeTokens = getAttributeTokens(name);
-      this.permittedAttributes = Array.from(attributeTokens);
+      const geometryIndices = GEOMETRY_ATTRIBUTE_INDICES[name] ?? [];
+      const geometryAttributes = geometryIndices
+        .map((index) => ATTRIBUTE_NAMES[index])
+        .filter((attr): attr is string => Boolean(attr));
+
+      this.permittedAttributes = Array.from(new Set([
+        ...attributeTokens,
+        ...geometryAttributes,
+      ]));
       this.permittedContent = 'any';
       this.initializeNode();
     }

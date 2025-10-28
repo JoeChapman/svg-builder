@@ -132,6 +132,8 @@ export const ATTRIBUTE_NAMES = [
   'crossorigin',
   'cx',
   'cy',
+  'rx',
+  'ry',
   'diffuseConstant',
   'divisor',
   'download',
@@ -4440,3 +4442,27 @@ export const ELEMENT_ATTRIBUTE_INDICES: Record<ElementName, readonly number[]> =
     245,
   ] as const,
 } as const;
+
+const ATTRIBUTE_NAME_TO_INDEX = ATTRIBUTE_NAMES.reduce<Record<string, number>>((accumulator, attribute, index) => {
+  accumulator[attribute] = index;
+  return accumulator;
+}, {});
+
+const GEOMETRY_ATTRIBUTE_NAMES: Partial<Record<ElementName, readonly string[]>> = {
+  circle: ['cx', 'cy', 'r'],
+  ellipse: ['cx', 'cy', 'rx', 'ry'],
+  line: ['x1', 'y1', 'x2', 'y2'],
+  rect: ['x', 'y', 'width', 'height', 'rx', 'ry'],
+  text: ['x', 'y'],
+};
+
+export const GEOMETRY_ATTRIBUTE_INDICES: Partial<Record<ElementName, readonly number[]>> = Object.entries(GEOMETRY_ATTRIBUTE_NAMES)
+  .reduce<Partial<Record<ElementName, readonly number[]>>>((accumulator, [name, attributes]) => {
+    const indices = attributes
+      .map((attributeName) => ATTRIBUTE_NAME_TO_INDEX[attributeName])
+      .filter((value): value is number => typeof value === 'number');
+    if (indices.length > 0) {
+      accumulator[name as ElementName] = indices as readonly number[];
+    }
+    return accumulator;
+  }, {});
