@@ -10,7 +10,7 @@ Simple, chainable SVG-building tool for NodeJS and the browser
 
 Requirements:
 - Node.js 16 or newer to consume the published package.
-- Node.js 18.12 or newer if you plan to run the local build/test tooling.
+- Node.js 22 or newer if you plan to run the local build/test tooling (build, test, or regenerate spec data).
 
 ```
 npm install svg-builder
