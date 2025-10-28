@@ -82,6 +82,12 @@ describe('svg-builder core API', () => {
     expect(markup).toContain('<style>circle { fill: orange; }</style>');
   });
 
+  it('permits geometry attributes for path, polygon, and polyline elements', () => {
+    expect(() => svg.path({ d: 'M0 0 L10 0 L10 10 Z' })).not.toThrow();
+    expect(() => svg.polygon({ points: '0,0 10,0 10,10' })).not.toThrow();
+    expect(() => svg.polyline({ points: '0,0 5,5 10,0' })).not.toThrow();
+  });
+
   it('allows string content for title and desc elements', () => {
     const markup = svg
       .title({}, 'Chart Title')

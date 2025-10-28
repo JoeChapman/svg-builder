@@ -1,0 +1,5 @@
+<svg viewBox="0 0 420 120" height="120" width="420" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><style>
+      .wordmark { font: 900 64px 'Inter', 'Segoe UI', sans-serif; }
+      .wordmark--base { fill: #FFF; }
+      .wordmark--accent { fill: #38BDF8; }
+    </style><text class="wordmark wordmark--base" x="2" y="82">svg-</text><text class="wordmark wordmark--accent" x="132" y="82">builder</text></svg>

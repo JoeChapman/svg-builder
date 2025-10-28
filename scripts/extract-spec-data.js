@@ -128,6 +128,9 @@ const geometryAttributeNamesMap = new Map(Object.entries({
   line: ['x1', 'y1', 'x2', 'y2'],
   rect: ['x', 'y', 'width', 'height', 'rx', 'ry'],
   text: ['x', 'y'],
+  path: ['d'],
+  polygon: ['points'],
+  polyline: ['points'],
 }));
 
 const main = () => {
