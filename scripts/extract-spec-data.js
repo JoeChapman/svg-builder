@@ -18,9 +18,33 @@ const fs = require('fs');
 const path = require('path');
 
 const projectRoot = process.cwd();
+const args = process.argv.slice(2);
 const elementIndexPath = path.join(projectRoot, 'spec_data', 'eltindex.html');
 const attributeIndexPath = path.join(projectRoot, 'spec_data', 'attindex.html');
-const outputFormat = process.argv.includes('--ts') ? 'ts' : 'json';
+const outputFormat = args.includes('--ts') ? 'ts' : 'json';
+const outFlagIndex = args.indexOf('--out');
+const explicitOutputPath = outFlagIndex !== -1 ? args[outFlagIndex + 1] : null;
+if (outFlagIndex !== -1 && !explicitOutputPath) {
+  throw new Error('Expected a file path after --out');
+}
+
+const defaultOutputPath = outputFormat === 'ts'
+  ? path.join(projectRoot, 'src', 'elements', 'definitions.ts')
+  : path.join(projectRoot, 'spec_data', 'element-attributes.json');
+
+const shouldWriteFile = args.includes('--write') || typeof explicitOutputPath === 'string';
+const outputFilePath = shouldWriteFile
+  ? path.resolve(projectRoot, explicitOutputPath ?? defaultOutputPath)
+  : null;
+
+const writeOutput = (content) => {
+  if (!outputFilePath) {
+    process.stdout.write(content);
+    return;
+  }
+  fs.mkdirSync(path.dirname(outputFilePath), { recursive: true });
+  fs.writeFileSync(outputFilePath, content.endsWith('\n') ? content : content + '\n', 'utf8');
+};
 
 const readFile = (inputPath) => {
   try {
@@ -87,7 +111,9 @@ const extractAttributeMappings = (html) => {
 
 const indent = (level) => '  '.repeat(level);
 
-const formatArray = (items, level = 0, formatter = JSON.stringify) => {
+const formatStringLiteral = (value) => `'${value.replace(/'/g, "\\'")}'`;
+
+const formatArray = (items, level = 0, formatter = formatStringLiteral) => {
   if (!items.length) {
     return '[]';
   }
@@ -95,6 +121,14 @@ const formatArray = (items, level = 0, formatter = JSON.stringify) => {
   const innerIndent = indent(level + 1);
   return `[\n${items.map((item) => `${innerIndent}${formatter(item)},`).join('\n')}\n${baseIndent}]`;
 };
+
+const geometryAttributeNamesMap = new Map(Object.entries({
+  circle: ['cx', 'cy', 'r'],
+  ellipse: ['cx', 'cy', 'rx', 'ry'],
+  line: ['x1', 'y1', 'x2', 'y2'],
+  rect: ['x', 'y', 'width', 'height', 'rx', 'ry'],
+  text: ['x', 'y'],
+}));
 
 const main = () => {
   const elementIndexHtml = readFile(elementIndexPath);
@@ -106,17 +140,28 @@ const main = () => {
   const elementAttributes = {};
   elements.forEach((element) => {
     const attributes = attributeMappings.get(element);
-    if (!attributes) {
+    const geometryForElement = geometryAttributeNamesMap.get(element);
+    if (!attributes && !geometryForElement) {
       elementAttributes[element] = ['core'];
       return;
     }
-    const withCore = new Set(attributes);
+    const withCore = new Set(attributes || []);
     withCore.add('core');
+    if (geometryForElement) {
+      geometryForElement.forEach((attribute) => {
+        withCore.add(attribute);
+      });
+    }
     elementAttributes[element] = Array.from(withCore).sort((a, b) => a.localeCompare(b));
   });
 
   const attributeSet = new Set(['presentation']);
   Object.values(elementAttributes).forEach((attributes) => {
+    attributes.forEach((attribute) => {
+      attributeSet.add(attribute);
+    });
+  });
+  geometryAttributeNamesMap.forEach((attributes) => {
     attributes.forEach((attribute) => {
       attributeSet.add(attribute);
     });
@@ -138,6 +183,15 @@ const main = () => {
   });
 
   const sortedElements = elements.sort((a, b) => a.localeCompare(b));
+  const geometryAttributeIndices = {};
+  geometryAttributeNamesMap.forEach((attributes, element) => {
+    const indices = attributes
+      .map((attribute) => attributeIndicesLookup.get(attribute))
+      .filter((index) => typeof index === 'number');
+    if (indices.length) {
+      geometryAttributeIndices[element] = indices;
+    }
+  });
 
   if (outputFormat === 'ts') {
     const formatElementAttributeIndices = () => {
@@ -146,7 +200,20 @@ const main = () => {
       }
       const body = sortedElements.map((name) => {
         const indices = elementAttributeIndices[name] || [];
-        return `${indent(1)}${JSON.stringify(name)}: ${formatArray(indices, 2, String)} as const,`;
+        return `${indent(1)}${formatStringLiteral(name)}: ${formatArray(indices, 2, String)} as const,`;
+      });
+      return `{\n${body.join('\n')}\n}`;
+    };
+
+    const geometryElements = Object.keys(geometryAttributeIndices).sort((a, b) => a.localeCompare(b));
+
+    const formatGeometryAttributeIndices = () => {
+      if (!geometryElements.length) {
+        return '{} as const';
+      }
+      const body = geometryElements.map((name) => {
+        const indices = geometryAttributeIndices[name] || [];
+        return `${indent(1)}${formatStringLiteral(name)}: ${formatArray(indices, 2, String)} as const,`;
       });
       return `{\n${body.join('\n')}\n}`;
     };
@@ -160,8 +227,10 @@ export const ATTRIBUTE_NAMES = ${formatArray(attributeNames)} as const;
 export type AttributeName = typeof ATTRIBUTE_NAMES[number];
 
 export const ELEMENT_ATTRIBUTE_INDICES: Record<ElementName, readonly number[]> = ${formatElementAttributeIndices()} as const;
+
+export const GEOMETRY_ATTRIBUTE_INDICES: Partial<Record<ElementName, readonly number[]>> = ${formatGeometryAttributeIndices()} as const;
 `;
-    process.stdout.write(ts);
+    writeOutput(ts);
     return;
   }
 
@@ -169,9 +238,10 @@ export const ELEMENT_ATTRIBUTE_INDICES: Record<ElementName, readonly number[]> =
     elements: sortedElements,
     attributes: attributeNames,
     elementAttributeIndices,
+    geometryAttributeIndices,
   };
 
-  process.stdout.write(JSON.stringify(payload, null, 2));
+  writeOutput(JSON.stringify(payload, null, 2));
 };
 
 try {

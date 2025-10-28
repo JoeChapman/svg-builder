@@ -23,11 +23,12 @@
     "./package.json": "./package.json"
   },
   "scripts": {
+    "generate:defs": "node scripts/extract-spec-data.js --ts --write && node scripts/extract-spec-data.js --write",
     "clean": "rimraf dist",
     "build:esm": "tsc -p tsconfig.build.esm.json",
     "build:cjs": "tsc -p tsconfig.build.cjs.json",
     "build:post": "node scripts/create-cjs-bridge.js",
-    "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:post",
+    "build": "npm run generate:defs && npm run clean && npm run build:esm && npm run build:cjs && npm run build:post",
     "prepare": "npm run build",
     "test": "vitest run",
     "lint": "eslint . --ext .ts --fix"

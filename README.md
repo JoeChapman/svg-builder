@@ -125,7 +125,24 @@ Pass `undefined` as the first argument when you only need to supply nested conte
 When you need binary output, call `svg.buffer()`. In Node.js it returns a `Buffer` (which extends `Uint8Array`), while in browsers it produces a `Uint8Array` without pulling in any polyfills. The helper intentionally probes the environment so your code does not need to juggle runtime checks: it prefers `Buffer.from` when available, falls back to `TextEncoder` in browsers, and finally uses a small manual encoder if neither API exists. This makes it safe to hand the result straight to file writers, HTTP clients, or any API that expects a `Uint8Array`, no matter where your bundle runs.
 
 ### Updating Element Definitions
-The list of supported elements and their permitted attributes is generated from the SVG 2 specification. Run `node scripts/extract-spec-data.js --ts > src/elements/definitions.ts` after refreshing `spec_data/eltindex.html` and `spec_data/attindex.html` with the latest copies of the spec if you need to refresh the data.
+The list of supported elements and their permitted attributes is generated from the SVG 2 specification. To refresh the dataset:
+1. Download the latest copies of the SVG 2 element and attribute indexes:
+   - [Element index (eltindex.html)](https://www.w3.org/TR/SVG2/eltindex.html)
+   - [Attribute index (attindex.html)](https://www.w3.org/TR/SVG2/attindex.html)
+2. Replace `spec_data/eltindex.html` and `spec_data/attindex.html` with the downloaded files.
+3. Run the generator:
+
+```
+npm run generate:defs
+```
+
+This command regenerates both `src/elements/definitions.ts` and `spec_data/element-attributes.json`, ensuring the runtime and the dataset stay in sync. The `npm run build` script calls `generate:defs` automatically, so published bundles always ship with the latest definitions.
 
 ### SVG Elements
 svg-builder now exposes a chainable method for every element defined in the [SVG 2 element index](https://w3c.github.io/svgwg/svg2-draft/eltindex.html) (63 elements, including filter primitives and animation elements). Each builder method mirrors the lowercase element name (`svg.feBlend()`, `svg.animateTransform()`, `svg.clipPath()`, etc.) and accepts an attributes object plus optional content.
+
+### Contributing / Testing
+
+- Run `npm test` (or `npx vitest run`) to execute the suite.
+- Coverage checks are enabled by default; use `npx vitest run --coverage` if you want the detailed report.
+- Before sending a PR that touches the spec data, run `npm run generate:defs` to refresh the derived files.

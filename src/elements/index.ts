@@ -53,7 +53,7 @@ const createElementConstructor = (name: ElementName): ElementConstructor => {
       const geometryIndices = GEOMETRY_ATTRIBUTE_INDICES[name] ?? [];
       const geometryAttributes = geometryIndices
         .map((index) => ATTRIBUTE_NAMES[index])
-        .filter((attr): attr is string => Boolean(attr));
+        .filter((attr: string): attr is string => Boolean(attr));
 
       this.permittedAttributes = Array.from(new Set([
         ...attributeTokens,
