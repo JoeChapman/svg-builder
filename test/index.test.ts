@@ -77,11 +77,24 @@ describe('svg-builder core API', () => {
     expect(markup).toContain('<text x="10" y="20">Hello</text>');
   });
 
-  it('wraps existing children when passing builder-like content', () => {
-    svg.circle({ r: 5 });
-    const fakeBuilder = { elements: ['<ignored></ignored>'] } as BuilderLike;
-    const output = svg.g({ id: 'wrapper' }, fakeBuilder).render();
+  it('nests builder-like content inside the new element without disturbing existing siblings', () => {
+    svg.rect({ width: 10, height: 20 });
+    const childBuilder = svgBuilder.create().circle({ r: 5 });
+    const output = svg.g({ id: 'wrapper' }, childBuilder).render();
+    expect(output).toContain('<rect width="10" height="20"></rect>');
     expect(output).toContain('<g id="wrapper"><circle r="5"></circle></g>');
+  });
+
+  it('keeps successive groups as siblings when each receives its own builder content', () => {
+    const first = svgBuilder.create().circle({ cx: 10, cy: 10, r: 5 });
+    const second = svgBuilder.create().rect({ width: 8, height: 8 });
+    const output = svg
+      .g({ id: 'one' }, first)
+      .g({ id: 'two' }, second)
+      .render();
+    expect(output).toContain('<g id="one"><circle cx="10" cy="10" r="5"></circle></g>');
+    expect(output).toContain('<g id="two"><rect width="8" height="8"></rect></g>');
+    expect(output).toContain('<g id="one"><circle cx="10" cy="10" r="5"></circle></g><g id="two"><rect width="8" height="8"></rect></g>');
   });
 
   it('resets accumulated elements via reset()', () => {

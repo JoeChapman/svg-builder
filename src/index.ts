@@ -114,10 +114,12 @@ function SVGBuilder(this: SVGBuilderInternal) {
       element.node += element.content + this.closeTag(element.name);
       this.elements.push(element.node);
     } else if (typeof element.content === 'object') {
-      const existingElements = this.elements.join('');
-      this.elements = [];
-      this.elements.unshift(element.node, existingElements);
-      this.elements.push(this.closeTag(element.name));
+      const builderLike = element.content as BuilderLike;
+      const childMarkup = Array.isArray(builderLike.elements)
+        ? builderLike.elements.join('')
+        : '';
+      element.node += childMarkup + this.closeTag(element.name);
+      this.elements.push(element.node);
     }
   };
 }

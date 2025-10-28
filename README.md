@@ -126,6 +126,32 @@ console.log(softGlowExample);
 Every method returns the same `SVGBuilderInstance`, so you can continue chaining or branch off by calling `svgBuilder.create()` again when you need a fresh document.
 Pass `undefined` as the first argument when you only need to supply nested content, such as when building up filters or gradients.
 
+#### Grouping multiple children
+
+When you want to nest multiple elements inside a parent (e.g. a `<g>`), build the children with a separate builder and pass that builder as the content argument. Each call produces a sibling, not a wrapper:
+
+```ts
+const svg = svgBuilder.create().viewBox('0 0 100 100');
+
+const circles = svgBuilder
+  .create()
+  .circle({ cx: 40, cy: 40, r: 25 })
+  .circle({ cx: 60, cy: 60, r: 25 });
+
+const rectangles = svgBuilder
+  .create()
+  .rect({ x: 20, y: 20, width: 40, height: 10 });
+
+const markup = svg
+  .g({ id: 'first-group', fill: 'white', stroke: 'green' }, circles)
+  .g({ id: 'second-group', fill: 'orange' }, rectangles)
+  .render();
+
+// …renders:
+// <g id="first-group"><circle …></circle><circle …></circle></g>
+// <g id="second-group"><rect …></rect></g>
+```
+
 ### SVG Buffer
 When you need binary output, call `svg.buffer()`. In Node.js it returns a `Buffer` (which extends `Uint8Array`), while in browsers it produces a `Uint8Array` without pulling in any polyfills. The helper intentionally probes the environment so your code does not need to juggle runtime checks: it prefers `Buffer.from` when available, falls back to `TextEncoder` in browsers, and finally uses a small manual encoder if neither API exists. This makes it safe to hand the result straight to file writers, HTTP clients, or any API that expects a `Uint8Array`, no matter where your bundle runs.
 
