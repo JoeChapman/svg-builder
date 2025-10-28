@@ -16,6 +16,7 @@ export type ElementContent = string | BuilderLike | undefined;
 
 const contentRegistry = permittedContent as Record<string, string[]>;
 const attributeRegistry = permittedAttributes as Record<string, string[]>;
+const STRING_CONTENT_ELEMENTS = new Set(['text', 'style', 'title', 'desc']);
 
 class DummySVGElement {
   attributes?: Record<string, unknown>;
@@ -34,6 +35,7 @@ class Element extends SVGElementBase {
   content: ElementContent;
   attrs: ElementAttributes | undefined;
   node: string;
+  allowsStringContent: boolean;
   
   constructor (attrs: ElementAttributes | undefined, content?: ElementContent) {
     super();
@@ -45,11 +47,13 @@ class Element extends SVGElementBase {
     this.content = content;
     this.permittedContent = 'any';
     this.permittedAttributes = 'any';
+    this.allowsStringContent = false;
   }
-  
+
   protected initializeNode () {
     this.defineAttributes();
     this.defineContent();
+    this.allowsStringContent = STRING_CONTENT_ELEMENTS.has(this.name);
     this.checkAttributes();
     this.checkContent();
     this.make(this.attrs);
@@ -130,7 +134,7 @@ class Element extends SVGElementBase {
     if (!this.content) {
       return;
     }
-    if (typeof this.content === 'string' && this.name !== 'text') {
+    if (typeof this.content === 'string' && !this.allowsStringContent) {
       throw new Error(`Content cannot be a string for ${this.name} elements.`);
     }
     if (this.isAny(this.permittedContent)) {

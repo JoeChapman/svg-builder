@@ -152,6 +152,22 @@ const markup = svg
 // <g id="second-group"><rect …></rect></g>
 ```
 
+#### Inline `<style>`, `<title>`, and `<desc>` nodes
+
+Some SVG elements accept raw text content. Pass a string to write inline CSS or metadata directly:
+
+```ts
+const metadata = svgBuilder
+  .create()
+  .style({}, 'circle { fill: orange; }')
+  .title({}, 'Chart Title')
+  .desc({}, 'Accessible description for screen readers')
+  .render();
+// => <style>circle { fill: orange; }</style>
+//    <title>Chart Title</title>
+//    <desc>Accessible description for screen readers</desc>
+```
+
 ### SVG Buffer
 When you need binary output, call `svg.buffer()`. In Node.js it returns a `Buffer` (which extends `Uint8Array`), while in browsers it produces a `Uint8Array` without pulling in any polyfills. The helper intentionally probes the environment so your code does not need to juggle runtime checks: it prefers `Buffer.from` when available, falls back to `TextEncoder` in browsers, and finally uses a small manual encoder if neither API exists. This makes it safe to hand the result straight to file writers, HTTP clients, or any API that expects a `Uint8Array`, no matter where your bundle runs.
 

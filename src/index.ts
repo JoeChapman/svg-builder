@@ -110,9 +110,14 @@ function SVGBuilder(this: SVGBuilderInternal) {
     if (!element.content) {
       element.node += this.closeTag(element.name);
       this.elements.push(element.node);
-    } else if (typeof element.content === 'string' && element.name === 'text') {
-      element.node += element.content + this.closeTag(element.name);
-      this.elements.push(element.node);
+    } else if (typeof element.content === 'string') {
+      if (element.allowsStringContent) {
+        element.node += element.content + this.closeTag(element.name);
+        this.elements.push(element.node);
+      } else {
+        element.node += this.closeTag(element.name);
+        this.elements.push(element.node);
+      }
     } else if (typeof element.content === 'object') {
       const builderLike = element.content as BuilderLike;
       const childMarkup = Array.isArray(builderLike.elements)

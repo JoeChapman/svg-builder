@@ -77,6 +77,20 @@ describe('svg-builder core API', () => {
     expect(markup).toContain('<text x="10" y="20">Hello</text>');
   });
 
+  it('allows string content for style elements', () => {
+    const markup = svg.style({}, 'circle { fill: orange; }').render();
+    expect(markup).toContain('<style>circle { fill: orange; }</style>');
+  });
+
+  it('allows string content for title and desc elements', () => {
+    const markup = svg
+      .title({}, 'Chart Title')
+      .desc({}, 'Accessible description')
+      .render();
+    expect(markup).toContain('<title>Chart Title</title>');
+    expect(markup).toContain('<desc>Accessible description</desc>');
+  });
+
   it('nests builder-like content inside the new element without disturbing existing siblings', () => {
     svg.rect({ width: 10, height: 20 });
     const childBuilder = svgBuilder.create().circle({ r: 5 });
