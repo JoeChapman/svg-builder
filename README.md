@@ -35,12 +35,6 @@ const markup = svgBuilder.create().viewBox('0 0 100 100').render();
 $ npm test
 ```
 
-### Updating Element Definitions
-The list of supported elements and their permitted attributes is generated from the SVG 2 specification. Run `node scripts/extract-spec-data.js --ts > src/elements/definitions.ts` after refreshing `spec_data/eltindex.html` and `spec_data/attindex.html` with the latest copies of the spec if you need to refresh the data.
-
-### SVG Elements
-svg-builder now exposes a chainable method for every element defined in the [SVG 2 element index](https://w3c.github.io/svgwg/svg2-draft/eltindex.html) (63 elements, including filter primitives and animation elements). Each builder method mirrors the lowercase element name (`svg.feBlend()`, `svg.animateTransform()`, `svg.clipPath()`, etc.) and accepts an attributes object plus optional content.
-
 ### Usage (TypeScript)
 
 ```ts
@@ -127,4 +121,11 @@ console.log(softGlowExample);
 Every method returns the same `SVGBuilderInstance`, so you can continue chaining or branch off by calling `svgBuilder.create()` again when you need a fresh document.
 Pass `undefined` as the first argument when you only need to supply nested content, such as when building up filters or gradients.
 
-When you need binary output, call `svg.buffer()`. In Node.js it returns a `Buffer` (which extends `Uint8Array`), while in browsers it produces a `Uint8Array` without pulling in any polyfills.
+### SVG Buffer
+When you need binary output, call `svg.buffer()`. In Node.js it returns a `Buffer` (which extends `Uint8Array`), while in browsers it produces a `Uint8Array` without pulling in any polyfills. The helper intentionally probes the environment so your code does not need to juggle runtime checks: it prefers `Buffer.from` when available, falls back to `TextEncoder` in browsers, and finally uses a small manual encoder if neither API exists. This makes it safe to hand the result straight to file writers, HTTP clients, or any API that expects a `Uint8Array`, no matter where your bundle runs.
+
+### Updating Element Definitions
+The list of supported elements and their permitted attributes is generated from the SVG 2 specification. Run `node scripts/extract-spec-data.js --ts > src/elements/definitions.ts` after refreshing `spec_data/eltindex.html` and `spec_data/attindex.html` with the latest copies of the spec if you need to refresh the data.
+
+### SVG Elements
+svg-builder now exposes a chainable method for every element defined in the [SVG 2 element index](https://w3c.github.io/svgwg/svg2-draft/eltindex.html) (63 elements, including filter primitives and animation elements). Each builder method mirrors the lowercase element name (`svg.feBlend()`, `svg.animateTransform()`, `svg.clipPath()`, etc.) and accepts an attributes object plus optional content.
