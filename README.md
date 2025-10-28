@@ -1,108 +1,32 @@
 svg-builder
 ===========
 
-Simple, chainable SVG-building tool for [NodeJS](http://nodejs.org/) and the browser (with [Browserify](http://browserify.org/))
+Simple, chainable SVG-building tool for NodeJS and the browser
 
-[![Build Status](https://app.travis-ci.com/JoeChapman/svg-builder.svg?branch=main)](https://app.travis-ci.com/JoeChapman/svg-builder?branch=main)
-[![NPM version](https://badge.fury.io/js/svg-builder.svg)](http://badge.fury.io/js/svg-builder) [![Greenkeeper badge](https://badges.greenkeeper.io/JoeChapman/svg-builder.svg)](https://greenkeeper.io/)
+[![CI](https://github.com/JoeChapman/svg-builder/actions/workflows/ci.yml/badge.svg)](https://github.com/JoeChapman/svg-builder/actions/workflows/ci.yml)
+[![NPM version](https://badge.fury.io/js/svg-builder.svg)](http://badge.fury.io/js/svg-builder)
 
 ### Install
-
 ```
 npm install svg-builder
 ```
 
-### SVG Elements
+### Importing in your app
 
-- a
-- circle
-- foreignObject
-- g
-- line 
-- path
-- rect
-- style
-- text
+svg-builder ships precompiled CommonJS and ES Module bundles, so you can drop it into any build without extra tooling.
 
-import svg from 'svg-builder')
+```ts
+// ESM / modern bundlers
+import svgBuilder from 'svg-builder';
 
-svg
-  .build()
-  .width(125)
-  .height(125);
-
-### Usage
-
-```js
-    var svg = require('svg-builder')
-        .width(125)
-        .height(125);
-
-    var logo = svg
-        .circle({
-            r: 40,
-            fill: 'none',
-            'stroke-width': 1,
-            stroke: '#CB3728',
-            cx: 42,
-            cy: 82
-        }).circle({
-            r: 40,
-            fill: 'none',
-            'stroke-width': 1,
-            stroke: '#3B92BC',
-            cx: 84,
-            cy: 82
-        }).text({
-            x: 10,
-            y: 20,
-            'font-family': 'helvetica',
-            'font-size': 15,
-            stroke : '#fff',
-            fill: '#fff'
-        }, 'My logo').render();
-    
-    svg.reset(); //removes all elements from the internal DOM.
-    
-    svg.line({
-        x1:0,
-        y1:0,
-        x2:125,
-        y2:125,
-        stroke:'#FF0000',
-        'stroke-width': 10
-    }).line({
-        x1:0,
-        y1:125,
-        x2:125,
-        y2:0,
-        stroke:'#FF0000',
-        'stroke-width': 10
-    }).render();
-    
+const markup = svgBuilder.create().viewBox('0 0 100 100').render();
 ```
 
-or
-```js 
-    
-    var otherBuilder = svg.newInstance(); // returns a new builder instance
-    otherBuilder.width(640).height(480);
-    otherBuilder.line({
-        x1:0,
-        y1:0,
-        x2:640,
-        y2:480,
-        stroke:'#FF0000',
-        'stroke-width': 40
-    }).line({
-        x1:0,
-        y1:480,
-        x2:640,
-        y2:0,
-        stroke:'#FF0000',
-        'stroke-width': 40
-    }).render();
+```ts
+// CommonJS (e.g. older Node services)
+const svgBuilder = require('svg-builder');
 
+const markup = svgBuilder.create().viewBox('0 0 100 100').render();
 ```
 
 ### Test
@@ -111,3 +35,96 @@ or
 $ npm test
 ```
 
+### Updating Element Definitions
+The list of supported elements and their permitted attributes is generated from the SVG 2 specification. Run `node scripts/extract-spec-data.js --ts > src/elements/definitions.ts` after refreshing `spec_data/eltindex.html` and `spec_data/attindex.html` with the latest copies of the spec if you need to refresh the data.
+
+### SVG Elements
+svg-builder now exposes a chainable method for every element defined in the [SVG 2 element index](https://w3c.github.io/svgwg/svg2-draft/eltindex.html) (63 elements, including filter primitives and animation elements). Each builder method mirrors the lowercase element name (`svg.feBlend()`, `svg.animateTransform()`, `svg.clipPath()`, etc.) and accepts an attributes object plus optional content.
+
+### Usage (TypeScript)
+
+```ts
+import svgBuilder, { SVGBuilderInstance } from 'svg-builder';
+
+const svg: SVGBuilderInstance = svgBuilder
+  .create()
+  .width(200)
+  .height(200)
+  .viewBox('0 0 200 200');
+
+const rotatingCircle: string = svg.circle(
+  {
+    cx: 100,
+    cy: 100,
+    r: 80,
+    fill: '#0EA5E9',
+    'stroke-width': 8,
+    stroke: '#1D4ED8',
+    'aria-label': 'Animated disk',
+  },
+  svg.animateTransform({
+    attributeName: 'transform',
+    type: 'rotate',
+    from: '0 100 100',
+    to: '360 100 100',
+    dur: '6s',
+    repeatCount: 'indefinite',
+  }),
+).render();
+
+console.log(rotatingCircle);
+```
+
+Chaining builder methods lets you configure filters, gradients, and other SVG 2 elements the same way:
+
+```ts
+import svgBuilder, { SVGBuilderInstance } from 'svg-builder';
+
+const glow: SVGBuilderInstance = svgBuilder
+  .create()
+  .width(240)
+  .height(160)
+  .viewBox('0 0 240 160');
+
+const softGlowExample: string = glow
+  .defs(
+    undefined,
+    glow.filter(
+      {
+        id: 'softGlow',
+        'color-interpolation-filters': 'sRGB',
+      },
+      glow.feGaussianBlur({
+        stdDeviation: 6,
+        in: 'SourceGraphic',
+      }),
+    ),
+  )
+  .rect({
+    width: 240,
+    height: 160,
+    rx: 32,
+    fill: '#0EA5E9',
+    filter: 'url(#softGlow)',
+  })
+  .text(
+    {
+      x: 120,
+      y: 96,
+      fill: '#FFFFFF',
+      'font-family': 'Inter, system-ui, sans-serif',
+      'font-size': 24,
+      'font-weight': 600,
+      'text-anchor': 'middle',
+    },
+    'SVG 2',
+  )
+  .render();
+
+console.log(softGlowExample);
+```
+
+Every method returns the same `SVGBuilderInstance`, so you can continue chaining or branch off by calling `svgBuilder.create()` again when you need a fresh document.
+Pass `undefined` as the first argument when you only need to supply nested content, such as when building up filters or gradients.
+
+When you need binary output, call `svg.buffer()`. In Node.js it returns a `Buffer` (which extends `Uint8Array`), while in browsers it produces a `Uint8Array` without pulling in any polyfills.

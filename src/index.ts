@@ -1,12 +1,20 @@
-import * as elements from './elements/';
-import type ElementBase from './elements/element';
-import type {
-  BuilderLike, ElementAttributes, ElementContent, 
-} from './elements/element';
+import elementRegistry, {
+  ELEMENT_NAMES,
+  type ElementConstructor,
+  type ElementName,
+  type ElementAttributes,
+  type ElementContent,
+} from './elements/index.js';
+import type ElementBase from './elements/element.js';
+import type { BuilderLike } from './elements/element';
 
 type NumericOrString = number | string;
 
-export interface SVGBuilderInstance extends BuilderLike {
+type ElementBuilderMethods<T> = {
+  [Name in ElementName]: (attrs?: ElementAttributes, content?: ElementContent) => T;
+};
+
+export interface SVGBuilderInstance extends BuilderLike, ElementBuilderMethods<SVGBuilderInstance> {
   root: string;
   elements: string[];
   closeTag(name: string): string;
@@ -14,18 +22,9 @@ export interface SVGBuilderInstance extends BuilderLike {
   height(value: NumericOrString): SVGBuilderInstance;
   viewBox(value: string): SVGBuilderInstance;
   render(): string;
-  buffer(): Buffer;
+  buffer(): Uint8Array;
   reset(): SVGBuilderInstance;
   newInstance(): SVGBuilderInstance;
-  a(attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance;
-  g(attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance;
-  circle(attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance;
-  text(attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance;
-  foreignObject(attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance;
-  line(attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance;
-  rect(attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance;
-  path(attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance;
-  style(attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance;
 }
 
 interface SVGBuilderInternal extends SVGBuilderInstance {
@@ -41,6 +40,48 @@ const formatRoot = (instance: SVGBuilderInternal, name: string, value: NumericOr
   const regexp = new RegExp(name + '([^=,]*)=("[^"]*"|[^,"]*)');
   return instance.root.replace(regexp, name + '="' + value + '"');
 };
+
+type NodeBufferConstructor = {
+  from(input: string): Uint8Array;
+};
+
+type GlobalScope = typeof globalThis | undefined;
+
+const resolveNodeBuffer = (scope: GlobalScope = globalThis): NodeBufferConstructor | null => {
+  if (!scope) {
+    return null;
+  }
+  const maybeBuffer = (scope as { Buffer?: NodeBufferConstructor }).Buffer;
+  return maybeBuffer && typeof maybeBuffer.from === 'function' ? maybeBuffer : null;
+};
+
+type TextEncoderConstructor = new () => TextEncoder;
+
+const createEncoder = (scope: GlobalScope = globalThis): TextEncoder | null => {
+  if (typeof TextEncoder !== 'undefined') {
+    return new TextEncoder();
+  }
+  if (!scope) {
+    return null;
+  }
+  const globalEncoder = (scope as { TextEncoder?: TextEncoderConstructor }).TextEncoder;
+  if (globalEncoder) {
+    return new globalEncoder();
+  }
+  return null;
+};
+
+const fallBackEncode = (value: string): Uint8Array => {
+  const length = value.length;
+  const result = new Uint8Array(length);
+  for (let i = 0; i < length; i += 1) {
+    result[i] = value.charCodeAt(i) & 0xff;
+  }
+  return result;
+};
+
+const nodeBuffer = resolveNodeBuffer();
+const textEncoder = nodeBuffer ? null : createEncoder();
 
 function SVGBuilder(this: SVGBuilderInternal) {
   this.root = '<svg height="100" width="100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
@@ -96,54 +137,28 @@ SVGBuilderCtor.prototype.render = function render(this: SVGBuilderInternal): str
   return this.root + this.elements.join('') + this.closeTag('svg');
 };
 
-SVGBuilderCtor.prototype.buffer = function buffer(this: SVGBuilderInternal): Buffer {
-  return Buffer.from(this.render());
+SVGBuilderCtor.prototype.buffer = function buffer(this: SVGBuilderInternal): Uint8Array {
+  const output = this.render();
+  if (nodeBuffer) {
+    return nodeBuffer.from(output);
+  }
+  if (textEncoder) {
+    return textEncoder.encode(output);
+  }
+  return fallBackEncode(output);
 };
 
-SVGBuilderCtor.prototype.a = function anchor(this: SVGBuilderInternal, attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance {
-  this.addElement(new elements.A(attrs, content));
-  return this;
-};
-
-SVGBuilderCtor.prototype.g = function group(this: SVGBuilderInternal, attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance {
-  this.addElement(new elements.G(attrs, content));
-  return this;
-};
-
-SVGBuilderCtor.prototype.circle = function circle(this: SVGBuilderInternal, attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance {
-  this.addElement(new elements.Circle(attrs, content));
-  return this;
-};
-
-SVGBuilderCtor.prototype.text = function text(this: SVGBuilderInternal, attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance {
-  this.addElement(new elements.Text(attrs, content));
-  return this;
-};
-
-SVGBuilderCtor.prototype.foreignObject = function foreignObject(this: SVGBuilderInternal, attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance {
-  this.addElement(new elements.ForeignObject(attrs, content));
-  return this;
-};
-
-SVGBuilderCtor.prototype.line = function line(this: SVGBuilderInternal, attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance {
-  this.addElement(new elements.Line(attrs, content));
-  return this;
-};
-
-SVGBuilderCtor.prototype.rect = function rect(this: SVGBuilderInternal, attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance {
-  this.addElement(new elements.Rect(attrs, content));
-  return this;
-};
-
-SVGBuilderCtor.prototype.path = function path(this: SVGBuilderInternal, attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance {
-  this.addElement(new elements.Path(attrs, content));
-  return this;
-};
-
-SVGBuilderCtor.prototype.style = function style(this: SVGBuilderInternal, attrs?: ElementAttributes, content?: ElementContent): SVGBuilderInstance {
-  this.addElement(new elements.Style(attrs, content));
-  return this;
-};
+ELEMENT_NAMES.forEach((name: ElementName) => {
+  const ElementCtor: ElementConstructor = elementRegistry[name];
+  SVGBuilderCtor.prototype[name] = function elementMethod(
+    this: SVGBuilderInternal,
+    attrs?: ElementAttributes,
+    content?: ElementContent,
+  ): SVGBuilderInstance {
+    this.addElement(new ElementCtor(attrs, content));
+    return this;
+  };
+});
 
 const templateBuilder = new SVGBuilderCtor();
 const defaultRoot = templateBuilder.root;

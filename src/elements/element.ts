@@ -110,7 +110,7 @@ class Element extends SVGElementBase {
       return;
     }
     if (typeof this.content === 'string' && this.name !== 'text') {
-      throw new Error('Content cannot be a string.');
+      throw new Error(`Content cannot be a string for ${this.name} elements.`);
     }
     if (this.isAny(this.permittedContent)) {
       return;
@@ -147,59 +147,6 @@ class Element extends SVGElementBase {
     this.node = element;
   }
 }
-
-// function extendProps(onto, from) {
-//     var props = Object.getOwnPropertyNames(from),
-//         replace,
-//         i;
-//     for (i = 0; i < props.length; ++i) {
-//         replace = getPropDesc(onto, props[i]);
-//         if (!(props[i] in Function) && (!replace || replace.writable)) {
-//             prop(onto, props[i], getPropDesc(from, props[i]));
-//         }
-//     }
-// }
-
-// function extend(parent, protoProps, staticProps) {
-//     var child;
-
-//     if (protoProps && protoProps.hasOwnProperty('constructor')) {
-//         child = protoProps.constructor;
-//     } else {
-//         child = function subClass() {
-//             return child.super.apply(this, arguments);
-//         };
-//     }
-
-//     prop(child, 'super', { value: parent });
-
-//     extendProps(child, parent);
-//     if (staticProps) {
-//         extendProps(child, staticProps);
-//     }
-
-//     child.prototype = Object.create(parent, {
-//         constructor: {
-//             value: child,
-//             enumerable: false,
-//             writable: true,
-//             configurable: true
-//         }
-//     });
-
-//     if (protoProps) {
-//         extendProps(child.prototype, protoProps);
-//     }
-//     return child;
-// }
-
-// prop(Element, 'extend', {
-//     configurable: true,
-//     writable: true,
-//     value (protoProps, staticProps) {
-//         return extend(this, protoProps, staticProps);
-//     }
-// });
 
 export {
   Element as default,

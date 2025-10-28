@@ -2,10 +2,13 @@
   "compilerOptions": {
     "outDir": "./built",
     "allowJs": true,
-    "target": "es5",
-    "module": "commonjs",
-    "esModuleInterop": true,
-    "types": ["vitest/globals"]
+    "target": "es2020",
+    "module": "Node16",
+    "moduleResolution": "node16",
+    "lib": ["es2020", "dom"],
+    "esModuleInterop": false,
+    "skipLibCheck": true,
+    "types": ["vitest/globals", "node"]
   },
   "include": [
     "./src/**/*",

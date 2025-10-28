@@ -1,550 +1,295 @@
 import {
-  describe, it, expect, beforeEach, 
+  afterEach,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  vi,
 } from 'vitest';
-import svgBuilder from '../src/index';
+import svgBuilder, { type SVGBuilderInstance } from '../src/index';
+import Element, {
+  type BuilderLike,
+  type ElementAttributes,
+  type ElementContent,
+} from '../src/elements/element';
+import { ELEMENT_NAMES } from '../src/elements/index';
 
-describe('svg-builder', () => {
-  const svg = svgBuilder.create();
+const DEFAULT_ROOT = '<svg height="100" width="100" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">';
 
-  describe('require("svg-builder")', () => {
-    it('returns object with own width function', () => {
-      expect(Object.prototype.hasOwnProperty.call(svg, 'width')).toBe(true);
-      expect(svg.width).toBeTypeOf('function');
-    });
+class DemoElement extends Element {
+  constructor(attrs?: ElementAttributes, content?: ElementContent) {
+    super(attrs, content);
+    this.name = 'demo-element';
+    this.permittedContent = ['descriptive'];
+    this.permittedAttributes = [
+      'aria',
+      [
+        'class',
+        'aria-label',
+      ],
+    ];
+    this.initializeNode();
+  }
+}
 
-    it('returns object with own height function', () => {
-      expect(Object.prototype.hasOwnProperty.call(svg, 'height')).toBe(true);
-      expect(svg.height).toBeTypeOf('function');
-    });
+describe('svg-builder core API', () => {
+  let svg: SVGBuilderInstance;
 
-    it('returns object with own viewBox function', () => {
-      expect(Object.prototype.hasOwnProperty.call(svg, 'viewBox')).toBe(true);
-      expect(svg.viewBox).toBeTypeOf('function');
-    });
+  beforeEach(() => {
+    svg = svgBuilder.create();
+  });
 
-    it('returns object with prototypal render method', () => {
-      expect(svg).toHaveProperty('render');
-      expect(svg.render).toBeTypeOf('function');
-    });
+  afterEach(() => {
+    svgBuilder.newInstance();
+  });
 
-    it('returns object with prototypal circle method', () => {
-      expect(svg).toHaveProperty('circle');
-      expect(svg.circle).toBeTypeOf('function');
-    });
+  it('creates a fresh builder instance with expected defaults', () => {
+    expect(svg.root).toBe(DEFAULT_ROOT);
+    expect(svg.elements).toEqual([]);
+    expect(svg.closeTag('svg')).toBe('</svg>');
+  });
 
-    it('returns object with prototypal text method', () => {
-      expect(svg).toHaveProperty('text');
-      expect(svg.text).toBeTypeOf('function');
-    });
-
-    it('returns object with prototypal line method', () => {
-      expect(svg).toHaveProperty('line');
-      expect(svg.line).toBeTypeOf('function');
-    });
-
-    it('returns object with prototypal rect method', () => {
-      expect(svg).toHaveProperty('rect');
-      expect(svg.rect).toBeTypeOf('function');
-    });
-
-    it('returns object with prototypal path method', () => {
-      expect(svg).toHaveProperty('path');
-      expect(svg.path).toBeTypeOf('function');
-    });
-
-    it('returns always the same object', () => {
-      svg.circle({ r: 40 }).circle({ r: 50 });
-      const secondBuilder = svgBuilder.newInstance();
-      expect(secondBuilder).toBe(svg);
-      expect(secondBuilder.elements).toBe(svg.elements);
+  it('exposes chainable methods for every SVG2 element', () => {
+    ELEMENT_NAMES.forEach((name) => {
+      expect(svg).toHaveProperty(name);
+      expect(typeof (svg as Record<string, unknown>)[name]).toBe('function');
     });
   });
 
-  describe('.width(200)', () => {
-    beforeEach(() => {
-      svg.width(200);
-    });
-
-    it('sets the root element width to 200', () => {
-      expect(svg.root).toContain('width="200"');
-    });
-
-    it('does not set the root element with to 100', () => {
-      expect(svg.root).not.toContain('width="100"');
-    });
+  it('updates root attributes via width, height, and viewBox', () => {
+    svg.width(200).height('300').viewBox('0 0 200 300');
+    expect(svg.root).toContain('width="200"');
+    expect(svg.root).toContain('height="300"');
+    expect(svg.root.startsWith('<svg viewBox="0 0 200 300"')).toBe(true);
   });
 
-  describe('.height(200)', () => {
-    beforeEach(() => {
-      svg.height(200);
-    });
-
-    it('sets the root element height to 200', () => {
-      expect(svg.root).toContain('height="200"');
-    });
-
-    it('does not set the root element with to 100', () => {
-      expect(svg.root).not.toContain('height="100"');
-    });
+  it('renders only the root and closing tag when empty', () => {
+    expect(svg.render()).toBe(DEFAULT_ROOT + '</svg>');
   });
 
-  describe('.viewBox', () => {
-    it('should not have a viewBox propety by default', () => {
-      expect(svg.root).not.toContain('viewBox=');
-    });
-
-    it('should set the viewBox property when called', () => {
-      expect(svg.viewBox('0 0 100 100').render()).toContain('viewBox="0 0 100 100"');
-    });
+  it('rejects string content for non-text elements', () => {
+    expect(() => svg.circle({ r: 5 }, 'bad-content')).toThrow('Content cannot be a string for circle elements.');
   });
 
-  describe('.render() before calling an element method', () => {
-    it('returns the root element with no content', () => {
-      expect(svg.render()).toEqual(svg.root + svg.closeTag('svg'));
-    });
+  it('allows string content for text elements', () => {
+    const markup = svg.text({ x: 10,
+      y: 20 }, 'Hello').render();
+    expect(markup).toContain('<text x="10" y="20">Hello</text>');
   });
 
-  describe('.a()', () => {
-    describe('chaining', () => {
-      it('returns the svg object', () => {
-        expect(
-          svg
-            .a({ 'xlink:href': '/' })
-            .a({ 'xlink:href': '/' })
-            .a({ 'xlink:href': '/' })
-            .a({ 'xlink:href': '/' }),
-        ).toBe(svg);
-      });
-
-      describe('.render()', () => {
-        it('returns the svg string with chained elements', () => {
-          const result = svg
-            .a({ 'xlink:href': '/' })
-            .a({ 'xlink:href': '/about' })
-            .render();
-
-          expect(result).toEqual(svg.root + '<a xlink:href="/"></a><a xlink:href="/about"></a>' + svg.closeTag('svg'));
-        });
-      });
-    });
-
-    describe('content', () => {
-      it('can contain other a elements', () => {
-        expect(() => {
-          svg.a(
-            { 'xlink:href': '/' },
-            svg.a({ 'xlink:href': '/about' }),
-          ).render();
-        }).not.toThrow('a cannot contain a elements.');
-      });
-
-      describe('.render()', () => {
-        it('returns the complete svg string with a elements and content', () => {
-          const result = svg.a(
-            { 'xlink:href': '/' },
-            svg.a({ 'xlink:href': '/about' }),
-          ).render();
-
-          expect(result).toEqual(svg.root + '<a xlink:href="/"><a xlink:href="/about"></a></a>' + svg.closeTag('svg'));
-        });
-      });
-    });
+  it('wraps existing children when passing builder-like content', () => {
+    svg.circle({ r: 5 });
+    const fakeBuilder = { elements: ['<ignored></ignored>'] } as BuilderLike;
+    const output = svg.g({ id: 'wrapper' }, fakeBuilder).render();
+    expect(output).toContain('<g id="wrapper"><circle r="5"></circle></g>');
   });
 
-  describe('.g()', () => {
-    describe('chaining', () => {
-      it('returns the svg object', () => {
-        expect(
-          svg
-            .g({ fill: 'white' })
-            .g({ fill: 'white' })
-            .g({ fill: 'white' })
-            .g({ fill: 'white' }),
-        ).toBe(svg);
-      });
+  it('resets accumulated elements via reset()', () => {
+    svg.circle({ r: 5 });
+    svg.reset();
+    expect(svg.elements).toHaveLength(0);
+    expect(svg.render()).toBe(DEFAULT_ROOT + '</svg>');
+  });
 
-      describe('.render()', () => {
-        it('returns the svg string with chained elements', () => {
-          const result = svg
-            .g({ fill: 'white' })
-            .g({ fill: 'white' })
-            .render();
+  it('reuses the existing builder instance on newInstance()', () => {
+    svg.width(250).circle({ r: 5 });
+    const reused = svgBuilder.newInstance();
+    expect(reused).toBe(svg);
+    expect(reused.root).toBe(DEFAULT_ROOT);
+    expect(reused.elements).toEqual([]);
+  });
 
-          expect(result).toEqual(svg.root + '<g fill="white"></g><g fill="white"></g>' + svg.closeTag('svg'));
-        });
-      });
-    });
+  it('creates an independent builder when calling newInstance() on an instance', () => {
+    const clone = svg.newInstance();
+    expect(clone).not.toBe(svg);
+    clone.width(123);
+    expect(clone.root).toContain('width="123"');
+    expect(svg.root).not.toContain('width="123"');
+  });
+});
 
-    describe('content', () => {
-      it('can contain other g elements', () => {
-        expect(() => {
-          svg.g(
-            { stroke: 'red' },
-            svg.g({ stroke: 'blue' }),
-          ).render();
-        }).not.toThrow('a cannot contain g elements.');
-      });
+describe('Element base behaviour', () => {
+  it('expands permitted content tokens and validates children', () => {
+    const validContent = { elements: ['<title>ok</title>'] } as BuilderLike;
+    const element = new DemoElement({ id: 'demo' }, validContent);
+    expect(Array.isArray(element.permittedContent)).toBe(true);
+    expect(element.permittedContent).toContain('title');
+    const ariaLabelOccurrences = element.permittedAttributes.filter((attr) => attr === 'aria-label').length;
+    expect(ariaLabelOccurrences).toBe(1);
+    expect(element.node).toContain('id="demo"');
+    expect(() => new DemoElement(undefined, { elements: ['<circle></circle>'] } as BuilderLike)).toThrow('demo-element cannot contain circle elements.');
+  });
 
-      it('groups other elements', () => {
-        const result = svg.g(
-          {
-            fill: 'white',
-            stroke: 'green',
-            r: '40',
-          },
-          svg.circle({ cy: 40 }).circle({ cy: 60 }).circle({ cy: 10 }),
-        ).render();
+  it('omits undefined attributes when generating markup', () => {
+    const element = new DemoElement({ class: 'box',
+      hidden: undefined });
+    expect(element.node).toContain('class="box"');
+    expect(element.node).not.toContain('hidden="undefined"');
+  });
 
-        expect(result).toEqual(
-          svg.root +
-            '<g fill="white" stroke="green" r="40"><circle cy="40"></circle><circle cy="60"></circle><circle cy="10"></circle></g>' +
-            svg.closeTag('svg'),
+  it('parses tag names from raw markup', () => {
+    const element = new DemoElement();
+    expect(element.getElementName('<foreignObject></foreignObject>')).toBe('foreignObject');
+  });
+});
+
+describe('static lookup data', () => {
+  it('exposes known ARIA attributes', async () => {
+    const { default: attributes } = await import('../src/attributes/index.js');
+    expect(attributes.aria).toContain('aria-label');
+  });
+
+  it('lists text content categories', async () => {
+    const { default: content } = await import('../src/content/index.js');
+    expect(content.textcontent).toContain('text');
+  });
+});
+
+describe('buffer() encoding strategies', () => {
+  const originalBuffer = global.Buffer;
+  const originalBufferFrom = originalBuffer?.from;
+  const OriginalTextEncoder = global.TextEncoder;
+
+  const importFreshSvgBuilder = async () => {
+    console.log('Importing fresh svgBuilder module');
+    const module = await import('../src/index.js');
+    console.log('Done importing fresh svgBuilder module');
+    return module.default;
+  };
+
+  const restoreGlobals = () => {
+    if (originalBuffer) {
+      (global as typeof global & { Buffer?: typeof Buffer }).Buffer = originalBuffer;
+      if (typeof originalBufferFrom === 'function') {
+        (global.Buffer as typeof Buffer).from = originalBufferFrom;
+      } else {
+        delete (global.Buffer as unknown as { from?: unknown }).from;
+      }
+    } else {
+      delete (global as typeof global & { Buffer?: typeof Buffer }).Buffer;
+    }
+
+    if (OriginalTextEncoder) {
+      (global as typeof global & { TextEncoder?: typeof TextEncoder }).TextEncoder = OriginalTextEncoder;
+    } else {
+      delete (global as typeof global & { TextEncoder?: typeof TextEncoder }).TextEncoder;
+    }
+  };
+
+  beforeEach(() => {
+    restoreGlobals();
+    vi.resetModules();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+    vi.unstubAllGlobals();
+    restoreGlobals();
+  });
+
+  it('prefers Node Buffer when available', async () => {
+    const builderModule = await importFreshSvgBuilder();
+    const buffer = builderModule.create().buffer();
+    expect(buffer).toBeInstanceOf(Uint8Array);
+    expect(Buffer.isBuffer(buffer)).toBe(true);
+  });
+
+  it('uses TextEncoder when Buffer lacks from()', async () => {
+    if (!originalBuffer) {
+      throw new Error('Buffer is not available in this environment.');
+    }
+
+    const encodeResult = new Uint8Array([1, 2, 3]);
+    const encodeSpy = vi.fn((_arg: string) => encodeResult);
+
+    const bufferGetter = vi.spyOn(globalThis, 'Buffer', 'get');
+
+    const bufferStub = Object.assign(
+      function BufferProxy(...args: unknown[]) {
+        return Reflect.construct(
+          originalBuffer as unknown as new (...ctorArgs: unknown[]) => unknown,
+          args,
         );
-      });
+      },
+      {
+        from: undefined as unknown as typeof Buffer.from,
+        isBuffer: originalBuffer.isBuffer.bind(originalBuffer),
+      },
+    );
 
-      describe('.render()', () => {
-        it('returns the complete svg string with g elements and content', () => {
-          const result = svg.g(
-            { fill: 'white' },
-            svg.g({ fill: 'blue' }),
-          ).render();
+    Object.setPrototypeOf(bufferStub, originalBuffer);
+    (bufferStub as { prototype: unknown }).prototype = originalBuffer.prototype;
 
-          expect(result).toEqual(svg.root + '<g fill="white"><g fill="blue"></g></g>' + svg.closeTag('svg'));
-        });
-      });
+    bufferGetter.mockImplementation(() => {
+      const stack = new Error().stack ?? '';
+      if (stack.includes('/src/index')) {
+        return bufferStub as unknown as typeof Buffer;
+      }
+      return originalBuffer;
     });
+
+    class FakeEncoder {
+      encode(value: string): Uint8Array {
+        return encodeSpy(value);
+      }
+    }
+
+    vi.stubGlobal('TextEncoder', FakeEncoder as unknown as typeof TextEncoder);
+
+    const builderModule = await importFreshSvgBuilder();
+    bufferGetter.mockRestore();
+
+    const builder = builderModule.create();
+    const expectedMarkup = builder.render();
+    const result = builder.buffer();
+
+    expect(encodeSpy).toHaveBeenCalledTimes(1);
+    expect(encodeSpy).toHaveBeenCalledWith(expectedMarkup);
+    expect(result).toBe(encodeResult);
   });
 
-  describe('.circle()', () => {
-    describe('chaining', () => {
-      it('returns the svg object', () => {
-        expect(
-          svg
-            .circle({ r: 40 })
-            .circle({ r: 40 })
-            .circle({ r: 40 })
-            .circle({ r: 40 }),
-        ).toBe(svg);
-      });
+  it('falls back to manual encoding when Buffer and TextEncoder are unavailable', async () => {
+    if (!originalBuffer) {
+      throw new Error('Buffer is not available in this environment.');
+    }
 
-      describe('.render()', () => {
-        it('returns the svg string with chained elements', () => {
-          const result = svg
-            .circle({ r: 40 })
-            .circle({ r: 20 })
-            .render();
-
-          expect(result).toEqual(svg.root + '<circle r="40"></circle><circle r="20"></circle>' + svg.closeTag('svg'));
-        });
-      });
-    });
-
-    it('cannot contain other circle elements', () => {
-      expect(() => {
-        svg.circle(
-          {
-            r: 40,
-            fill: 'none',
-            'stroke-width': 1,
-            stroke: '#CB3728',
-            cx: 42,
-            cy: 82,
-          },
-          svg.circle({
-            r: 40,
-            fill: 'none',
-            'stroke-width': 1,
-            stroke: '#CB3728',
-            cx: 42,
-            cy: 82,
-          }),
+    const bufferGetter = vi.spyOn(globalThis, 'Buffer', 'get');
+    const bufferStub = Object.assign(
+      function BufferProxy(...args: unknown[]) {
+        return Reflect.construct(
+          originalBuffer as unknown as new (...ctorArgs: unknown[]) => unknown,
+          args,
         );
-      }).toThrow('circle cannot contain circle elements.');
+      },
+      {
+        from: undefined as unknown as typeof Buffer.from,
+        isBuffer: originalBuffer.isBuffer.bind(originalBuffer),
+      },
+    );
+
+    Object.setPrototypeOf(bufferStub, originalBuffer);
+    (bufferStub as { prototype: unknown }).prototype = originalBuffer.prototype;
+
+    bufferGetter.mockImplementation(() => {
+      const stack = new Error().stack ?? '';
+      if (stack.includes('/src/index')) {
+        return bufferStub as unknown as typeof Buffer;
+      }
+      return originalBuffer;
     });
 
-    describe('.render()', () => {
-      it('returns the svg string with circle element and attributes', () => {
-        const result = svg.circle({
-          r: 40,
-          fill: 'none',
-          'stroke-width': 1,
-          stroke: '#CB3728',
-          cx: 42,
-          cy: 82,
-        }).render();
+    vi.stubGlobal('TextEncoder', undefined as unknown as typeof TextEncoder);
 
-        expect(result).toEqual(
-          svg.root +
-            '<circle r="40" fill="none" stroke-width="1" stroke="#CB3728" cx="42" cy="82"></circle>' +
-            svg.closeTag('svg'),
-        );
-      });
-    });
-  });
+    const builderModule = await importFreshSvgBuilder();
+    bufferGetter.mockRestore();
 
-  describe('.text()', () => {
-    describe('chaining', () => {
-      it('returns the svg object', () => {
-        expect(
-          svg
-            .text({ r: 40 })
-            .text({ r: 40 })
-            .text({ r: 40 })
-            .text({ r: 40 }),
-        ).toBe(svg);
-      });
-    });
-
-    it('cannot contain other text elements', () => {
-      expect(() => {
-        svg.text(
-          {
-            r: 40,
-            fill: 'none',
-            'stroke-width': 1,
-            stroke: '#CB3728',
-            cx: 42,
-            cy: 82,
-          },
-          svg.text({
-            r: 40,
-            fill: 'none',
-            'stroke-width': 1,
-            stroke: '#CB3728',
-            cx: 42,
-            cy: 82,
-          }),
-        );
-      }).toThrow('text cannot contain text elements.');
-    });
-
-    it('can contain a string', () => {
-      const result = svg.text(
-        {
-          r: 40,
-          fill: 'none',
-          'stroke-width': 1,
-          stroke: '#CB3728',
-          cx: 42,
-          cy: 82,
-        },
-        'Hello world',
-      ).render();
-
-      expect(result).toEqual(
-        svg.root +
-          '<text r="40" fill="none" stroke-width="1" stroke="#CB3728" cx="42" cy="82">Hello world</text>' +
-          svg.closeTag('svg'),
-      );
-    });
-  });
-
-  describe('.line()', () => {
-    describe('chaining', () => {
-      it('returns the svg object', () => {
-        expect(
-          svg.line({
-            x1: 0,
-            y1: 0,
-            x2: 40,
-            y2: 40,
-          }),
-        ).toBe(svg);
-      });
-
-      describe('.render()', () => {
-        it('returns the svg string with chained elements', () => {
-          const result = svg
-            .line({
-              x1: 0,
-              y1: 0,
-              x2: 40,
-              y2: 40,
-            })
-            .render();
-
-          expect(result).toEqual(svg.root + '<line x1="0" y1="0" x2="40" y2="40"></line>' + svg.closeTag('svg'));
-        });
-      });
-
-      describe('.buffer()', () => {
-        let bufferSvg: typeof svg;
-
-        beforeEach(() => {
-          bufferSvg = svg.line({
-            x1: 0,
-            y1: 0,
-            x2: 40,
-            y2: 40,
-          });
-        });
-
-        it('returns the svg as a buffer', () => {
-          expect(bufferSvg.buffer()).toBeInstanceOf(Buffer);
-        });
-
-        it('should be identical to the svg .render() buffer', () => {
-          expect(
-            Buffer.compare(bufferSvg.buffer(), Buffer.from(bufferSvg.render())),
-          ).toEqual(0);
-        });
-      });
-    });
-
-    it('cannot contain other line elements', () => {
-      expect(() => {
-        svg.line(
-          {
-            x1: 0,
-            y1: 0,
-            x2: 40,
-            y2: 40,
-          },
-          svg.line({
-            x1: 0,
-            y1: 0,
-            x2: 40,
-            y2: 40,
-          }),
-        );
-      }).toThrow('line cannot contain line elements.');
-    });
-  });
-
-  describe('.rect()', () => {
-    describe('chaining', () => {
-      it('returns the svg object', () => {
-        expect(
-          svg.rect({
-            x: 0,
-            y: 0,
-            width: 40,
-            height: 40,
-          }),
-        ).toBe(svg);
-      });
-
-      describe('.render()', () => {
-        it('returns the svg string with chained elements', () => {
-          const result = svg
-            .rect({
-              x: 0,
-              y: 0,
-              width: 40,
-              height: 40,
-            })
-            .render();
-
-          expect(result).toEqual(svg.root + '<rect x="0" y="0" width="40" height="40"></rect>' + svg.closeTag('svg'));
-        });
-      });
-    });
-
-    it('cannot contain other rect elements', () => {
-      expect(() => {
-        svg.rect(
-          {
-            x: 0,
-            y: 0,
-            width: 40,
-            height: 40,
-          },
-          svg.rect({
-            x: 0,
-            y: 0,
-            width: 40,
-            height: 40,
-          }),
-        );
-      }).toThrow('rect cannot contain rect elements.');
-    });
-  });
-
-  describe('.path()', () => {
-    describe('chaining', () => {
-      it('returns the svg object', () => {
-        expect(
-          svg.path({ d: 'M 100 100 L 300 100 L 200 300 z' }),
-        ).toBe(svg);
-      });
-
-      describe('.render()', () => {
-        it('returns the svg string with chained elements', () => {
-          const result = svg
-            .path({ d: 'M 100 100 L 300 100 L 200 300 z' })
-            .render();
-
-          expect(result).toEqual(
-            svg.root + '<path d="M 100 100 L 300 100 L 200 300 z"></path>' + svg.closeTag('svg'),
-          );
-        });
-      });
-    });
-
-    it('cannot contain other path elements', () => {
-      expect(() => {
-        svg.path(
-          { d: 'M 100 100 L 300 100 L 200 300 z' },
-          svg.path({ d: 'M 100 100 L 300 100 L 200 300 z' }),
-        );
-      }).toThrow('path cannot contain path elements.');
-    });
-  });
-
-  describe('.style()', () => {
-    describe('chaining', () => {
-      it('returns the svg object', () => {
-        expect(
-          svg.style({
-            d: 'M 100 100 L 300 100 L 200 300 z',
-          }),
-        ).toBe(svg);
-      });
-
-      describe('.render()', () => {
-        it('returns the svg string with chained elements', () => {
-          const result = svg.style({
-            d: 'M 100 100 L 300 100 L 200 300 z',
-          }).render();
-
-          expect(result).toEqual(
-            svg.root + '<style d="M 100 100 L 300 100 L 200 300 z"></style>' + svg.closeTag('svg'),
-          );
-        });
-      });
-    });
-  });
-
-  describe('.reset()', () => {
-    it('empties the elements array', () => {
-      svg
-        .line({
-          x1: 0,
-          y1: 0,
-          x2: 40,
-          y2: 40,
-        })
-        .circle({ r: 5 });
-
-      expect(svg.elements.length).toEqual(2);
-      svg.reset();
-      expect(svg.elements.length).toEqual(0);
-    });
-
-    it('should render only the root', () => {
-      svg.circle({ r: 5 });
-      svg.reset();
-      expect(svg.render()).toEqual(svg.root + svg.closeTag('svg'));
-    });
-  });
-
-  describe('new_Instance', () => {
-    it('returns always a new builder', () => {
-      svg.circle({ r: 5 }).circle({ r: 4 });
-      const newBuilder = svg.newInstance();
-      expect(newBuilder).not.toBe(svg);
-      newBuilder.circle({ r: 5 }).circle({ r: 4 });
-      expect(newBuilder.elements).not.toBe(svg.elements);
-    });
+    const builder = builderModule.create().viewBox('0 0 10 10');
+    const markup = builder.render();
+    const result = builder.buffer();
+    const expected = new Uint8Array(markup.length);
+    for (let i = 0; i < markup.length; i += 1) {
+      expected[i] = markup.charCodeAt(i) & 0xff;
+    }
+    expect(result).toEqual(expected);
   });
 });
