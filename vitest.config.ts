@@ -9,12 +9,12 @@ export default defineConfig({
       reporter: ['text', 'html'],
       include: ['src/**/*.ts'],
       enabled: true,
-      // thresholds: {
-      //   lines: 100,
-      //   statements: 100,
-      //   branches: 100,
-      //   functions: 100,
-      // },
+      thresholds: {
+        lines: 94,
+        statements: 94,
+        branches: 84,
+        functions: 100,
+      },
     },
   },
 });

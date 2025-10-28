@@ -137,11 +137,13 @@ describe('static lookup data', () => {
   it('exposes known ARIA attributes', async () => {
     const { default: attributes } = await import('../src/attributes/index.js');
     expect(attributes.aria).toContain('aria-label');
+    expect(attributes.presentation).toContain('fill');
   });
 
   it('lists text content categories', async () => {
     const { default: content } = await import('../src/content/index.js');
     expect(content.textcontent).toContain('text');
+    expect(content.structural).toContain('svg');
   });
 });
 
@@ -151,9 +153,7 @@ describe('buffer() encoding strategies', () => {
   const OriginalTextEncoder = global.TextEncoder;
 
   const importFreshSvgBuilder = async () => {
-    console.log('Importing fresh svgBuilder module');
     const module = await import('../src/index.js');
-    console.log('Done importing fresh svgBuilder module');
     return module.default;
   };
 
@@ -291,5 +291,16 @@ describe('buffer() encoding strategies', () => {
       expected[i] = markup.charCodeAt(i) & 0xff;
     }
     expect(result).toEqual(expected);
+  });
+});
+
+describe('environment detection', () => {
+  it('creates a builder when newInstance is the first call', async () => {
+    vi.resetModules();
+    const { default: builderModule } = await import('../src/index.js');
+    const fresh = builderModule.newInstance();
+    expect(fresh.render()).toContain('</svg>');
+    const reused = builderModule.newInstance();
+    expect(reused).toBe(fresh);
   });
 });
