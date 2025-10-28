@@ -7,6 +7,11 @@ Simple, chainable SVG-building tool for NodeJS and the browser
 [![NPM version](https://badge.fury.io/js/svg-builder.svg)](http://badge.fury.io/js/svg-builder)
 
 ### Install
+
+Requirements:
+- Node.js 16 or newer to consume the published package.
+- Node.js 18.12 or newer if you plan to run the local build/test tooling.
+
 ```
 npm install svg-builder
 ```
