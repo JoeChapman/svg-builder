@@ -1,10 +1,10 @@
 {
   "name": "svg-builder",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "main": "./dist/cjs/index.cjs",
   "module": "./dist/esm/index.js",
   "types": "./dist/types/index.d.ts",
-  "description": "Simple, chainable SVG-building tool for NodeJS and the browser (with Browserify)",
+  "description": "Simple, chainable SVG-building tool for NodeJS and the browser",
   "keywords": [
     "svg",
     "svg-builder"
