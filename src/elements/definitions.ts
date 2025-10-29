@@ -4331,9 +4331,11 @@ export const ELEMENT_ATTRIBUTE_INDICES: Record<ElementName, readonly number[]> =
       225,
       227,
       228,
+      242,
       246,
       247,
       248,
+      249,
     ] as const,
   'view': [
       3,
@@ -4496,5 +4498,10 @@ export const GEOMETRY_ATTRIBUTE_INDICES: Partial<Record<ElementName, readonly nu
   'text': [
       242,
       249,
+    ] as const,
+  'use': [
+      242,
+      249,
+      85,
     ] as const,
 } as const;

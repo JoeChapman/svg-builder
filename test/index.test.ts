@@ -88,6 +88,10 @@ describe('svg-builder core API', () => {
     expect(() => svg.polyline({ points: '0,0 5,5 10,0' })).not.toThrow();
   });
 
+  it('accepts transform on shape elements', () => {
+    expect(() => svg.ellipse({ cx: 50, cy: 50, rx: 20, ry: 12, transform: 'rotate(15 50 50)' })).not.toThrow();
+  });
+
   it('allows string content for title and desc elements', () => {
     const markup = svg
       .title({}, 'Chart Title')

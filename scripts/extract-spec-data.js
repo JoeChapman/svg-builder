@@ -131,6 +131,7 @@ const geometryAttributeNamesMap = new Map(Object.entries({
   path: ['d'],
   polygon: ['points'],
   polyline: ['points'],
+  use: ['x', 'y', 'href'],
 }));
 
 const main = () => {

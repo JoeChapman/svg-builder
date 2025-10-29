@@ -122,6 +122,7 @@ class Element extends SVGElementBase {
     this.resolveTokens(permittedList, attributeRegistry).forEach((attribute) => {
       allowed.add(attribute);
     });
+    allowed.add('transform');
 
     Object.keys(this.attrs).forEach((attribute) => {
       if (!allowed.has(attribute)) {

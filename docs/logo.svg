@@ -1,6 +1,5 @@
-<svg viewBox="0 0 420 120" height="120" width="420" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><style>
-      .wordmark { font: 900 64px 'Inter', 'Segoe UI', sans-serif; }
-      .wordmark--base { fill: #368ce2ff; }
-      .wordmark--dash { fill: #368ce2ff; }
-      .wordmark--accent { fill: #f3db27ff; }
-    </style><text class="wordmark wordmark--base" x="2" y="82">svg</text><text class="wordmark wordmark--dash" x="112" y="82">-</text><text class="wordmark wordmark--accent" x="133" y="82">builder</text></svg>
+<svg viewBox="0 0 360 120" height="120" width="360" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><style>
+    .wordmark { font: 900 64px 'Inter', 'Segoe UI', sans-serif; }
+    .wordmark--base { fill: url(#grad-base); }
+    .wordmark--accent { fill: url(#grad-accent); }
+  </style><defs><linearGradient id="grad-base" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#60a5fa"></stop><stop offset="100%" stop-color="#5779d7ff"></stop></linearGradient><linearGradient id="grad-accent" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#d3c9a4ff"></stop><stop offset="100%" stop-color="#e8d14cff"></stop></linearGradient></defs><text class="wordmark wordmark--base" x="0" y="82">svg-</text><text class="wordmark wordmark--accent" x="132" y="82">builder</text></svg>
