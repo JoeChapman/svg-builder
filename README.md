@@ -173,22 +173,21 @@ const metadata = svgBuilder
 
 ```ts
 const logo = svgBuilder
-    .create()
-    .width(420)
-    .height(120)
-    .viewBox('0 0 420 120')
-    .style({}, `
-      .wordmark { font: 900 64px 'Inter', 'Segoe UI', sans-serif; }
-      .wordmark--base { fill: #FFF; }
-      .wordmark--accent { fill: #38BDF8; }
-    `)
-    .text({ class: 'wordmark wordmark--base', x: 2, y: 82 }, 'svg-')
-    .text({ class: 'wordmark wordmark--accent', x: 132, y: 82 }, 'builder')
-    .render();
+  .create()
+  .width(420)
+  .height(120)
+  .viewBox('0 0 420 120')
+  .style({}, `
+    .wordmark { font: 900 64px 'Inter', 'Segoe UI', sans-serif; }
+    .wordmark--base { fill: #368ce2ff; }
+    .wordmark--dash { fill: #368ce2ff; }
+    .wordmark--accent { fill: #f3db27ff; }
+  `)
+  .text({ class: 'wordmark wordmark--base', x: 2, y: 82 }, 'svg')
+  .text({ class: 'wordmark wordmark--dash', x: 112, y: 82 }, '-')
+  .text({ class: 'wordmark wordmark--accent', x: 133, y: 82 }, 'builder')
+  .render();
 ```
-
-### SVG Buffer
-When you need binary output, call `svg.buffer()`. In Node.js it returns a `Buffer` (which extends `Uint8Array`), while in browsers it produces a `Uint8Array` without pulling in any polyfills. The helper intentionally probes the environment so your code does not need to juggle runtime checks: it prefers `Buffer.from` when available, falls back to `TextEncoder` in browsers, and finally uses a small manual encoder if neither API exists. This makes it safe to hand the result straight to file writers, HTTP clients, or any API that expects a `Uint8Array`, no matter where your bundle runs.
 
 ### Updating Element Definitions
 The list of supported elements and their permitted attributes is generated from the SVG 2 specification. To refresh the dataset:
