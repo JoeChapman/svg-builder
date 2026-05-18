@@ -125,6 +125,7 @@ const formatArray = (items, level = 0, formatter = formatStringLiteral) => {
 const geometryAttributeNamesMap = new Map(Object.entries({
   circle: ['cx', 'cy', 'r'],
   ellipse: ['cx', 'cy', 'rx', 'ry'],
+  image: ['x', 'y', 'width', 'height'],
   line: ['x1', 'y1', 'x2', 'y2'],
   rect: ['x', 'y', 'width', 'height', 'rx', 'ry'],
   text: ['x', 'y'],

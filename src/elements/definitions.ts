@@ -1899,6 +1899,7 @@ export const ELEMENT_ATTRIBUTE_INDICES: Record<ElementName, readonly number[]> =
       59,
       61,
       62,
+      84,
       85,
       87,
       100,
@@ -1968,9 +1969,12 @@ export const ELEMENT_ATTRIBUTE_INDICES: Record<ElementName, readonly number[]> =
       225,
       227,
       228,
+      241,
+      242,
       246,
       247,
       248,
+      249,
     ] as const,
   'line': [
       3,
@@ -4471,6 +4475,12 @@ export const GEOMETRY_ATTRIBUTE_INDICES: Partial<Record<ElementName, readonly nu
       64,
       212,
       213,
+    ] as const,
+  'image': [
+      242,
+      249,
+      241,
+      84,
     ] as const,
   'line': [
       243,
