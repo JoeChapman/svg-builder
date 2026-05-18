@@ -5,8 +5,7 @@ import elementRegistry, {
   type ElementAttributes,
   type ElementContent,
 } from './elements/index.js';
-import type ElementBase from './elements/element.js';
-import type { BuilderLike } from './elements/element';
+import ElementBase, { BuilderLike } from './elements/element.js';
 
 type NumericOrString = number | string;
 
@@ -32,7 +31,7 @@ interface SVGBuilderInternal extends SVGBuilderInstance {
 }
 
 type SVGBuilderConstructor = {
-  new (): SVGBuilderInternal;
+  new(): SVGBuilderInternal;
   prototype: SVGBuilderInternal;
 };
 

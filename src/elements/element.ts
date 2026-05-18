@@ -1,5 +1,5 @@
-import permittedContent from '../content';
-import permittedAttributes from '../attributes';
+import permittedContent from '../content/index.js';
+import permittedAttributes from '../attributes/index.js';
 
 type PermittedToken = string | string[];
 type PermittedConfig = 'any' | PermittedToken[];
